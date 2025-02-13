@@ -1,4 +1,4 @@
-/* index.tsx */ 
+/* profile.tsx */ 
 
 import { View, Text, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.text}>Welcome to the index Screen!</Text>
+      <Text style={styles.text}>Welcome to the Profile Screen!</Text>
     </ThemedView>
   );
 }
