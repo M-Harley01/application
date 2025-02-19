@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.text}>Welcome to the explore Screen!</Text>
+      <Text style={styles.text}>Welcome to the schedule Screen!</Text>
     </ThemedView>
   );
 }

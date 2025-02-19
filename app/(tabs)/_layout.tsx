@@ -19,7 +19,7 @@ export default function TabLayout() {
         name="index"
       />
       <Tabs.Screen
-        name="explore"
+        name="schedule"
       />
       <Tabs.Screen
         name="profile"
