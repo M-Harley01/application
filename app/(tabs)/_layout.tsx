@@ -22,7 +22,7 @@ export default function TabLayout() {
         name="schedule"
       />
       <Tabs.Screen
-        name="profile"
+        name="report"
       />
 
     </Tabs>

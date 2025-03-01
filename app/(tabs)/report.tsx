@@ -2,20 +2,29 @@
 
 import { View, Text, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
+import { TextInput } from 'react-native';
 
 export default function ProfileScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <Text style={styles.text}>Welcome to the Profile Screen!</Text>
-    </ThemedView>
+    <View style={styles.container}>
+      <TextInput  style={styles.textBox} >
+
+      </TextInput>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 10,
+    justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  textBox: {
+    backgroundColor: 'white',
+    width: '100%',
+    height: '30%'
   },
   text: {
     fontSize: 20,
