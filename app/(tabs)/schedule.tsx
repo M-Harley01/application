@@ -1,111 +1,128 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
+// ProfileScreen.tsx
 
-export default function ProfileScreen() {
-  const scheduleData = [
-    { day: 'Mon', date: '17th', shift: '10:00 - 15:00\nHome Delivery Shift' },
-    { day: 'Tue', date: '18th', shift: '9:00 - 17:00\nCheckout Shift' },
-    { day: 'Wed', date: '19th', shift: 'Not Scheduled' },
-    { day: 'Thu', date: '20th', shift: '14:00 - 22:00\nShop Floor Shift' },
-    { day: 'Fri', date: '21st', shift: '9:00 - 17:00\nCheckout Shift' },
-    { day: 'Sat', date: '22nd', shift: 'Not Scheduled' },
-    { day: 'Sun', date: '23rd', shift: 'Not Scheduled' },
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+
+export default function ScheduleScreen() {
+  const [monthOpen, setMonthOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("February 2025");
+
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState(null);
+
+  const [swapOpen, setSwapOpen] = useState(false);
+  const [selectedSwap, setSelectedSwap] = useState(null);
+
+  const months = [
+    { label: "January 2025", value: "January 2025" },
+    { label: "February 2025", value: "February 2025" },
+    { label: "March 2025", value: "March 2025" },
+  ];
+
+  const colleagues = [
+    { label: "Alice Johnson", value: "Alice Johnson" },
+    { label: "Bob Smith", value: "Bob Smith" },
+    { label: "Charlie Davis", value: "Charlie Davis" },
+    { label: "Diana Roberts", value: "Diana Roberts" },
+  ];
+
+  const shifts = [
+    { day: "Mon 17th", time: "10:00 - 15:00", type: "Home Delivery Shift" },
+    { day: "Tue 18th", time: "9:00 - 17:00", type: "Checkout Shift" },
+    { day: "Wed 19th", time: "Not Scheduled", type: "" },
+    { day: "Thu 20th", time: "14:00 - 22:00", type: "Shop floor Shift" },
+    { day: "Fri 21st", time: "9:00 - 17:00", type: "Checkout Shift" },
+    { day: "Sat 22nd", time: "Not Scheduled", type: "" },
+    { day: "Sun 23rd", time: "Not Scheduled", type: "" },
   ];
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Schedule</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Filter </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Header Bar */}
+      <View style={styles.header}>
+        <Text style={styles.headingText}>Schedule</Text>
+
+        {/* Month Picker */}
+        <DropDownPicker
+          open={monthOpen}
+          value={selectedMonth}
+          items={months}
+          setOpen={setMonthOpen}
+          setValue={setSelectedMonth}
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          textStyle={{ fontSize: 14 }}
+        />
+
+        {/* Filter Dropdown */}
+        <DropDownPicker
+          open={filterOpen}
+          value={selectedFilter}
+          items={colleagues}
+          setOpen={setFilterOpen}
+          setValue={setSelectedFilter}
+          placeholder="Filter by Colleague"
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          textStyle={{ fontSize: 14 }}
+        />
+
+        {/* Request Swap Dropdown */}
+        <DropDownPicker
+          open={swapOpen}
+          value={selectedSwap}
+          items={colleagues}
+          setOpen={setSwapOpen}
+          setValue={setSelectedSwap}
+          placeholder="Request Swap"
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          textStyle={{ fontSize: 14 }}
+        />
       </View>
-      <ScrollView style={styles.scrollContainer}>
-        {scheduleData.map((item, index) => (
-          <View key={index} style={styles.rowContainer}>
-            <View style={styles.dateColumn}>
-              <Text style={styles.dateText}>{item.day}</Text>
-              <Text style={styles.dateText}>{item.date}</Text>
+
+      {/* Schedule List */}
+      <ScrollView style={styles.scheduleContainer}>
+        {shifts.map((shift, index) => (
+          <View key={index} style={styles.shiftRow}>
+            <View style={styles.dayColumn}>
+              <Text style={styles.dayText}>{shift.day}</Text>
             </View>
-            <View style={styles.shiftBox}>
-              <Text style={styles.shiftText}>{item.shift}</Text>
+            <View style={[styles.shiftBox, shift.time === "Not Scheduled" && styles.notScheduled]}>
+              <Text style={styles.shiftTime}>{shift.time}</Text>
+              {shift.type ? <Text style={styles.shiftType}>{shift.type}</Text> : null}
             </View>
           </View>
         ))}
       </ScrollView>
      
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#AAC4EA",
-    padding: 10,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: 10,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: "#ffffff",
-  },
-  filterButton: {
-    backgroundColor: '#ffffff',
-    padding: 8,
-    borderRadius: 5,
-  },
-  filterText: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  dateColumn: {
-    width: 80,
-    backgroundColor: '#D3D3D3',
-    padding: 10,
-    alignItems: 'center',
-  },
-  dateText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  shiftBox: {
-    flex: 1,
-    backgroundColor: "rgba(0, 93, 160, 0.8)",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  shiftText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: "#ffffff",
-    textAlign: 'center',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: '#000',
-  },
-  navButton: {
-    padding: 10,
-  },
-  navText: {
-    color: '#fff',
-    fontSize: 16,
-  },
+  container: { flex: 1, backgroundColor: "#f0f0f0" },
+
+  /* Header Bar */
+  header: { flexDirection: "row", backgroundColor: "#005DA0", padding: 15, alignItems: "center", flexWrap: "wrap" },
+  headingText: { fontSize: 24, color: "#ffffff", fontWeight: "bold", flex: 1 },
+  dropdownContainer: { width: 140, marginHorizontal: 5 },
+  dropdown: { backgroundColor: "#fff", borderRadius: 5, height: 40 },
+
+  /* Schedule List */
+  scheduleContainer: { paddingHorizontal: 10, marginTop: 10 },
+  shiftRow: { flexDirection: "row", marginBottom: 8, alignItems: "center" },
+  dayColumn: { width: 80, backgroundColor: "#9e9e9e", padding: 10, borderRadius: 5, alignItems: "center" },
+  dayText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  shiftBox: { flex: 1, backgroundColor: "#6fa3e5", padding: 12, borderRadius: 25, marginLeft: 8 },
+  shiftTime: { color: "#ffffff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
+  shiftType: { color: "#ffffff", fontSize: 14, textAlign: "center" },
+  notScheduled: { backgroundColor: "#AAC4EA" },
+
+  /* Bottom Navigation */
+  bottomNav: { flexDirection: "row", backgroundColor: "#444", padding: 15, justifyContent: "space-around" },
+  navText: { color: "#fff", fontSize: 16 },
+  navTextActive: { color: "#fff", fontSize: 16, fontWeight: "bold", textDecorationLine: "underline" },
 });
+
