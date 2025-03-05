@@ -1,20 +1,37 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity,StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { useRouter } from "expo-router";
-import { TextInput } from "react-native-gesture-handler";
 
 export default function LoginScreen() {
-  const [serverResponse, setServerResponse] = useState("hello");
+  const [input1, setInput1] = useState(""); 
+  const [input2, setInput2] = useState(""); 
+  const [serverResponse, setServerResponse] = useState(""); 
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const router = useRouter();
 
-  const fetchResponse = async () => {
+  const sendDataToServer = async () => {
     try {
-      const response = await fetch("http://192.168.0.30:3000/"); 
-      const data = await response.text(); 
-      setServerResponse(data); 
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setServerResponse("Failed to fetch response");
+      const response = await fetch("http://192.168.0.30:3000/api/receive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text1: input1, text2: input2 }), 
+      });
+
+      const data = await response.json(); 
+      
+      if(data.success){
+        setServerResponse("success");
+        setLoggedIn(true);
+        router.replace("/(tabs)");
+      }else{
+        setServerResponse("Incorrect username or password")
+        setLoggedIn(false);
+      }
+    }
+    catch (error) {
+      console.error("Error sending data:", error);
+      setServerResponse("Failed to send data.");
     }
   };
 
@@ -22,19 +39,25 @@ export default function LoginScreen() {
     <View style={styles.Background}>
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Login Screen</Text>
 
-      <TextInput style={styles.textBox}>
+      <TextInput
+        style={styles.textBox}
+        placeholder="Enter first text"
+        value={input1}
+        onChangeText={setInput1}
+      />
 
-      </TextInput>
+      <TextInput
+        style={styles.textBox}
+        placeholder="Enter second text"
+        value={input2}
+        onChangeText={setInput2}
+      />
 
-      <TextInput style={styles.textBox}>
-
-      </TextInput>
-
-      <TouchableOpacity style={styles.Button}  onPress={fetchResponse} >
-        <Text style={styles.ButtonText}>Get response</Text>
+      <TouchableOpacity style={styles.Button} onPress={sendDataToServer}>
+        <Text style={styles.ButtonText}>Send to Server</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.Button} onPress={() => router.replace("/(tabs)")} >
+      <TouchableOpacity style={styles.Button} onPress={() => router.replace("/(tabs)")}>
         <Text style={styles.ButtonText}>Continue to App</Text>
       </TouchableOpacity>
 
@@ -44,32 +67,33 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  Background:{
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center", 
-    backgroundColor: "#AAC4EA"
+  Background: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#AAC4EA",
   },
-  Button:{
-    backgroundColor: "#007AFF", 
+  Button: {
+    backgroundColor: "#007AFF",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    marginHorizontal: 20,  
-    marginVertical: 10, 
+    marginHorizontal: 20,
+    marginVertical: 10,
   },
   ButtonText: {
-    color: "#fff", 
-    fontSize: 18, 
-    fontWeight: "bold"
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   textBox: {
     backgroundColor: "white",
-    width: "50%", 
+    width: "50%",
     height: "5%",
-    marginHorizontal: 20,  
-    marginVertical: 10,  
-    borderRadius: 10,  
-    textAlign: "left",  
+    marginHorizontal: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+    textAlign: "left",
+    paddingHorizontal: 10,
   },
 });
