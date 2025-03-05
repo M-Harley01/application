@@ -1,6 +1,6 @@
 /* _layout.tsx */
 
-import { Tabs } from 'expo-router';
+import { Tabs, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -12,17 +12,21 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const { username } = useLocalSearchParams();
+ 
   return (
     <Tabs>
       <Tabs.Screen
         name="index"
+        initialParams={{ username }}
       />
       <Tabs.Screen
         name="schedule"
+        initialParams={{ username }}
       />
       <Tabs.Screen
         name="report"
+        initialParams={{ username }}
       />
 
     </Tabs>

@@ -11,6 +11,7 @@ export default function RootLayout() {
   useEffect(() => {
     router.replace("/auth/login"); 
   }, []);
+  
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
