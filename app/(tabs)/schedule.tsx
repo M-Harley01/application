@@ -1,4 +1,4 @@
-// ProfileScreen.tsx
+// schedule.tsx
 
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
