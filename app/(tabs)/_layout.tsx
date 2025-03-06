@@ -12,21 +12,21 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { username } = useLocalSearchParams();
+  const { colleagueID } = useLocalSearchParams();
  
   return (
     <Tabs>
       <Tabs.Screen
         name="index"
-        initialParams={{ username }}
+        initialParams={{ colleagueID }}
       />
       <Tabs.Screen
         name="schedule"
-        initialParams={{ username }}
+        initialParams={{ colleagueID }}
       />
       <Tabs.Screen
         name="report"
-        initialParams={{ username }}
+        initialParams={{ colleagueID }}
       />
 
     </Tabs>

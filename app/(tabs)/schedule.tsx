@@ -7,7 +7,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 export default function ScheduleScreen() {
 
-  const {username} = useLocalSearchParams();
+  const {colleagueID} = useLocalSearchParams();
 
   const [monthOpen, setMonthOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("February 2025");
@@ -17,8 +17,6 @@ export default function ScheduleScreen() {
 
   const [swapOpen, setSwapOpen] = useState(false);
   const [selectedSwap, setSelectedSwap] = useState(null);
-
-
 
   const months = [
     { label: "January 2025", value: "January 2025" },
@@ -57,11 +55,12 @@ export default function ScheduleScreen() {
     <View style={styles.container}>
 
     <View>
-      <Text>Welcome, {username}!</Text>
+      <Text>Welcome, {colleagueID}!</Text>
     </View>
 
       <View style={styles.header}>
         <Text style={styles.headingText}>Schedule</Text>
+        </View>
 
         <View style={{ zIndex: 3000, elevation: 3000 }}>
           <DropDownPicker
@@ -103,7 +102,7 @@ export default function ScheduleScreen() {
             textStyle={{ fontSize: 14 }}
           />
         </View>
-      </View>
+      
 
       <ScrollView style={styles.scheduleContainer}>
         {shifts.map((shift, index) => (

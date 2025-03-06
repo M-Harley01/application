@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingV
 import DropDownPicker from "react-native-dropdown-picker";
 
 export default function ProfileScreen() {
- 
+  
   const [startOpen, setStartOpen] = useState(false);
   const [startValue, setStartValue] = useState(null);
   const [endOpen, setEndOpen] = useState(false);

@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-nativ
 import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
-  const [userName, setInput1] = useState(""); 
+  const [userId, setInput1] = useState(""); 
   const [password, setInput2] = useState(""); 
   const [serverResponse, setServerResponse] = useState(""); 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -17,7 +17,7 @@ export default function LoginScreen() {
       const response = await fetch("http://10.201.35.121:3000/api/receive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text1: userName, text2: password }), 
+        body: JSON.stringify({ text1: userId, text2: password }), 
       });
 
       const data = await response.json(); 
@@ -25,7 +25,7 @@ export default function LoginScreen() {
       if(data.success){
         setServerResponse("success");
         setLoggedIn(true);
-        router.replace({pathname: "/(tabs)", params: {username: userName}});
+        router.replace({pathname: "/(tabs)", params: {colleagueID: userId}});
       }else{
         setServerResponse("Incorrect username or password")
         setLoggedIn(false);
@@ -44,7 +44,7 @@ export default function LoginScreen() {
       <TextInput
         style={styles.textBox}
         placeholder="Enter first text"
-        value={userName}
+        value={userId}
         onChangeText={setInput1}
       />
 
