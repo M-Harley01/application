@@ -14,7 +14,7 @@ export default function LoginScreen() {
 
   const sendDataToServer = async () => {
     try {
-      const response = await fetch("http://192.168.0.30:3000/api/receive", {
+      const response = await fetch("http://10.201.35.121:3000/api/receive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text1: userName, text2: password }), 
@@ -56,11 +56,7 @@ export default function LoginScreen() {
       />
 
       <TouchableOpacity style={styles.Button} onPress={sendDataToServer}>
-        <Text style={styles.ButtonText}>Send to Server</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.Button} onPress={() => router.replace("/(tabs)")}>
-        <Text style={styles.ButtonText}>Continue to App</Text>
+        <Text style={styles.ButtonText}>Log In</Text>
       </TouchableOpacity>
 
       {serverResponse ? <Text style={{ fontSize: 18, marginTop: 20 }}>{serverResponse}</Text> : null}
