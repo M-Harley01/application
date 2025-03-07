@@ -10,7 +10,7 @@ export default function ScheduleScreen() {
   const {colleagueID} = useLocalSearchParams();
 
   const [monthOpen, setMonthOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState("February 2025");
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(null);
