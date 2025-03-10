@@ -1,16 +1,23 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from "expo-router"; 
 
+
 export default function AttachImageScreen() {
   const router = useRouter();
 
   return (
+
+    
+
     <View style={styles.container}>
       <Text style={styles.text}>Attach Image Page</Text>
 
       <TouchableOpacity style={styles.editButton} onPress={() => router.replace("/(tabs)")}>
         <Text style={styles.editButtonText}>Back to Tabs</Text>
       </TouchableOpacity>
+
+        
+      
     </View>
   );
 }
