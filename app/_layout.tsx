@@ -14,7 +14,8 @@ export default function RootLayout() {
   
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
+
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="auth/login" options={{ headerShown: false }} />

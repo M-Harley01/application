@@ -1,7 +1,7 @@
 // schedule.tsx
 
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
@@ -10,7 +10,7 @@ export default function ScheduleScreen() {
   const {colleagueID} = useLocalSearchParams();
 
   const [monthOpen, setMonthOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("February");
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(null);
@@ -18,19 +18,57 @@ export default function ScheduleScreen() {
   const [swapOpen, setSwapOpen] = useState(false);
   const [selectedSwap, setSelectedSwap] = useState(null);
 
+  const [dates, setDates] = useState([]);
+  const [times, setTimes] = useState([]);
+  const [types, setTypes] = useState([]);
+
+useEffect(() => {
+  if (colleagueID && selectedMonth) {
+    fetchSchedule();
+  }
+}, [colleagueID, selectedMonth]); 
+
+const fetchSchedule = async () => {
+  try {
+    const response = await fetch(
+      `http://10.201.35.121:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
+    );
+    const data = await response.json();
+
+    if (data.success) {
+      setDates(data.dayDates);
+      setTimes(data.times);
+      setTypes(data.types);
+    } else {
+      setDates([]);
+      setTimes([]);
+      setTypes([]);
+
+      console.log("Fetched Dates:", data.dayDates);
+      console.log("Fetched Times:", data.times);
+      console.log("Fetched Types:", data.types);
+    }
+  } catch (error) {
+    console.error("Error fetching schedule:", error);
+    setDates([]);
+    setTimes([]);
+    setTypes([]);
+  }
+};
+
   const months = [
-    { label: "January 2025", value: "January 2025" },
-    { label: "February 2025", value: "February 2025" },
-    { label: "March 2025", value: "March 2025" },
-    { label: "April 2025", value: "April 2025" },
-    { label: "May 2025", value: "May 2025" },
-    { label: "June 2025", value: "June 2025" },
-    { label: "July 2025", value: "July 2025" },
-    { label: "August 2025", value: "August 2025" },
-    { label: "September 2025", value: "September 2025" },
-    { label: "October 2025", value: "October 2025" },
-    { label: "November 2025", value: "November 2025" },
-    { label: "December 2025", value: "December 2025" }
+    { label: "January", value: "January" },
+    { label: "February", value: "February" },
+    { label: "March", value: "March" },
+    { label: "April", value: "April" },
+    { label: "May", value: "May" },
+    { label: "June", value: "June" },
+    { label: "July", value: "July" },
+    { label: "August", value: "August" },
+    { label: "September", value: "September" },
+    { label: "October", value: "October" },
+    { label: "November", value: "November" },
+    { label: "December", value: "December" }
 ];
 
   const colleagues = [
@@ -40,23 +78,8 @@ export default function ScheduleScreen() {
     { label: "Diana Roberts", value: "Diana Roberts" },
   ];
 
-  
-  const shifts = [
-    { day: "Mon 17th", time: "10:00 - 15:00", type: "Home Delivery Shift" },
-    { day: "Tue 18th", time: "9:00 - 17:00", type: "Checkout Shift" },
-    { day: "Wed 19th", time: "Not Scheduled", type: "" },
-    { day: "Thu 20th", time: "14:00 - 22:00", type: "Shop floor Shift" },
-    { day: "Fri 21st", time: "9:00 - 17:00", type: "Checkout Shift" },
-    { day: "Sat 22nd", time: "Not Scheduled", type: "" },
-    { day: "Sun 23rd", time: "Not Scheduled", type: "" },
-  ];
-
   return (
     <View style={styles.container}>
-
-    <View>
-      <Text>Welcome, {colleagueID}!</Text>
-    </View>
 
       <View style={styles.header}>
         <Text style={styles.headingText}>Schedule</Text>
@@ -103,20 +126,23 @@ export default function ScheduleScreen() {
           />
         </View>
       
-
-      <ScrollView style={styles.scheduleContainer}>
-        {shifts.map((shift, index) => (
-          <View key={index} style={styles.shiftRow}>
-            <View style={styles.dayColumn}>
-              <Text style={styles.dayText}>{shift.day}</Text>
-            </View>
-            <View style={[styles.shiftBox, shift.time === "Not Scheduled" && styles.notScheduled]}>
-              <Text style={styles.shiftTime}>{shift.time}</Text>
-              {shift.type ? <Text style={styles.shiftType}>{shift.type}</Text> : null}
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+        <ScrollView style={styles.scheduleContainer}>
+          {dates.length > 0 ? (
+            dates.map((date, index) => (
+              <View key={index} style={styles.shiftRow}>
+                <View style={styles.dayColumn}>
+                  <Text style={styles.dayText}>{date}</Text>
+                </View>
+                <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
+                  <Text style={styles.shiftTime}>{times[index]}</Text>
+                  {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
+          )}
+        </ScrollView>
     </View>
   );
 }
