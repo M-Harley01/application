@@ -31,7 +31,7 @@ useEffect(() => {
 const fetchSchedule = async () => {
   try {
     const response = await fetch(
-      `http://10.201.35.121:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
+      `http://192.168.1.71:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
     );
     const data = await response.json();
 
