@@ -17,7 +17,7 @@ export default function LoginScreen() {
       const response = await fetch("http://192.168.1.109:3000/api/receive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text1: userId, text2: password }), 
+        body: JSON.stringify({ colleagueID: userId, password }), 
       });
 
       const data = await response.json(); 

@@ -1,4 +1,6 @@
 // index.tsx
+
+import { useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -9,6 +11,44 @@ export default function ProfileScreen() {
   const [startValue, setStartValue] = useState(null);
   const [endOpen, setEndOpen] = useState(false);
   const [endValue, setEndValue] = useState(null);
+
+  const {colleagueID} = useLocalSearchParams();
+
+  const [firstName, setFname] = useState("");
+  const [lastName, setLname] = useState("");
+  const [contactNo, setContact] = useState("");
+  const [position, setPosition] = useState("");
+  const [location, setLocation] = useState("");
+
+  useEffect(() => {
+    if (colleagueID) {
+      fetchUserDetails();
+    }
+  }, [colleagueID]);
+
+  const fetchUserDetails = async () => {
+    try{
+      const response = await fetch(
+        `http://192.168.1.109:3000/api/profile?colleagueID=${colleagueID}`
+      );
+
+      const data = await response.json();
+      console.log("Raw server response:", data);
+
+      if(data.success){
+        setFname(data.firstName);
+        setLname(data.lastName);
+        setContact(data.contactNo);
+        setPosition(data.position);
+        setLocation(data.location);
+      }
+      else{
+        console.error("failed getting details: ", data.message);
+      }
+    }catch(error){
+        console.error("Error fetching user details: ", error);
+    }
+  }
 
   const months = [
     { label: "January", value: "January" },
@@ -69,20 +109,21 @@ export default function ProfileScreen() {
           <Text style={styles.headingText}>Profile</Text>
         </View>
         <View style={styles.section}>
-          <Text style={styles.text}>FirstName</Text>
-          <Text style={styles.text}>Colleague ID: #123456</Text>
+          <Text style={styles.text}>FirstName: {firstName}</Text>
+          <Text style={styles.text}>FirstName: {lastName}</Text>
+          <Text style={styles.text}>Colleague ID: #{colleagueID}</Text>
           <TouchableOpacity style={styles.editButton}>
             <Text style={styles.editButtonText}>Edit profile</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.infoBox}>
-          <Text style={styles.text}>Contact no.:</Text>
+          <Text style={styles.text}>Contact no.: {contactNo}</Text>
         </View>
         <View style={styles.infoBox}>
-          <Text style={styles.text}>Position:</Text>
+          <Text style={styles.text}>Position: {position}</Text>
         </View>
         <View style={styles.infoBox}>
-          <Text style={styles.text}>Location:</Text>
+          <Text style={styles.text}>Location: {location}</Text>
         </View>
         <View style={styles.infoBox}>
           <Text style={styles.text}>Holidays: 28 days</Text>
