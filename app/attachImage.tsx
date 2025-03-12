@@ -1,8 +1,6 @@
-
-import { AntDesign } from '@expo/vector-icons';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { useRef, useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Image } from 'react-native';
 
 export default function Camera() {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -42,48 +40,85 @@ export default function Camera() {
     }
   }; 
 
+  const handleRetakePhoto = () => setPhoto(null);
   
-  return (
+  return photo ? (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.box}>
+        <Image style={styles.previewContainer} source={{ uri: 'data:image/jpg;base64,' + photo.base64 }} />
+      </View>
+  
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleRetakePhoto}>
+          <Text style={styles.text}> Retake Picture </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.text}> Use Picture </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  ) : (
     <View style={styles.container}>
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+      </CameraView>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <AntDesign name='retweet' size={44} color='black' />
+            <Text style={styles.text}>Flip Camera</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-            <AntDesign name='camera' size={44} color='black' />
+            <Text style={styles.text}>Take Photo</Text>
           </TouchableOpacity>
         </View>
-      </CameraView>
+      
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  
   container: {
-    flex: 1,
     justifyContent: 'center',
+    backgroundColor: '#AAC4EA',
+    height: '100%' 
   },
   camera: {
-    flex: 1,
+    flex: 3,
+    height: '80%',
+    width: '90%',
+  },
+  box: {
+    flex: 0.7,
+    borderRadius: 15,
+    width: '95%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20, 
+  },
+  previewContainer: {
+    width: '95%',
+    height: '100%', 
+    borderRadius: 15,
+    resizeMode: 'contain', 
   },
   buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
+    flex: 0.3, 
+    flexDirection: 'row', 
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: '15%',
   },
   button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-    marginHorizontal: 10,
     backgroundColor: 'gray',
     borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 10,
+    position: 'relative',
+  
   },
   text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
   },
 });
