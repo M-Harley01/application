@@ -9,7 +9,7 @@ export default function App() {
   if (!permission) {
     
     return <View />;
-  }
+  } 
 
   if (!permission.granted) {
     
