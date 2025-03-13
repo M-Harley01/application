@@ -1,20 +1,25 @@
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Image } from 'react-native';
+import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+
 
 export default function Camera() {
+  const router = useRouter();
+  const {colleagueID} = useLocalSearchParams();
+
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<any>(null);
   const cameraRef = useRef<CameraView | null>(null);
-
-  if (!permission) {
   
+  if (!permission) {
+    
     return <View />;
   }
-
+  
   if (!permission.granted) {
-    
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
@@ -22,9 +27,13 @@ export default function Camera() {
       </View>
     );
   }
-
+  
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
+  }
+  
+  function cancelPhoto(){
+    router.replace({pathname: "/(tabs)", params: {colleagueID}})
   }
 
   const handleTakePhoto =  async () => {
@@ -67,6 +76,9 @@ export default function Camera() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
             <Text style={styles.text}>Take Photo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={cancelPhoto}>
+            <Text style={styles.text}>Cancel</Text>
           </TouchableOpacity>
         </View>
       

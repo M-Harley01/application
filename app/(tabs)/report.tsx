@@ -6,9 +6,12 @@ import { TextInput } from 'react-native';
 import React, { useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
 export default function ReportScreen() {
   const router = useRouter();
+
+  const {colleagueID} = useLocalSearchParams();
 
   const [urgencyOpen, setUrgencyOpen] = useState(false);
   const [selectedUrgency, setSelectedUrgency] = useState(null);
@@ -34,7 +37,7 @@ export default function ReportScreen() {
           placeholder="Enter your text..."
           multiline={true}
         />
-        <TouchableOpacity style={styles.editButton} onPress={() => router.replace("../attachImage")}>
+        <TouchableOpacity style={styles.editButton} onPress={() => router.replace({pathname:"../attachImage", params:{colleagueID}})}>
           <Text style={styles.editButtonText}>Attach Image</Text>
         </TouchableOpacity>
 
