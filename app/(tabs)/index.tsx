@@ -1,11 +1,14 @@
 // index.tsx
 
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
+
+  const router = useRouter();
   
   const [startOpen, setStartOpen] = useState(false);
   const [startValue, setStartValue] = useState(null);
@@ -48,6 +51,10 @@ export default function ProfileScreen() {
     }catch(error){
         console.error("Error fetching user details: ", error);
     }
+  }
+
+  function locationTime(){
+    router.replace({pathname: "../location"})
   }
 
   const months = [
@@ -129,7 +136,7 @@ export default function ProfileScreen() {
           <Text style={styles.text}>Holidays: 28 days</Text>
         </View>
 
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity style={styles.editButton} onPress={locationTime}>
           <Text>Clock In</Text>
         </TouchableOpacity>
 
