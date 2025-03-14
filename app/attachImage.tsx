@@ -13,8 +13,6 @@ export default function Camera() {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<any>(null);
   const cameraRef = useRef<CameraView | null>(null);
-
-  let image = photo;
   
   if (!permission) {
     
@@ -35,7 +33,7 @@ export default function Camera() {
   }
   
   function cancelPhoto(){
-    router.replace({pathname: "/(tabs)", params: {colleagueID}})
+    router.replace({pathname: "/(tabs)", params: {colleagueID}});
   }
 
   const handleTakePhoto =  async () => {
@@ -76,6 +74,7 @@ export default function Camera() {
 
         const responseData = await response.json();
         console.log("Server Response", responseData);
+        router.replace({pathname: "/(tabs)", params: {colleagueID}})
          
       } catch(error){
         console.log(`error sending photo to the server`, error);

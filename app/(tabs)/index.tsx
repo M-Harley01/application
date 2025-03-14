@@ -129,6 +129,10 @@ export default function ProfileScreen() {
           <Text style={styles.text}>Holidays: 28 days</Text>
         </View>
 
+        <TouchableOpacity style={styles.editButton}>
+          <Text>Clock In</Text>
+        </TouchableOpacity>
+
         <View style={styles.section}>
           <Text style={styles.subHeadingText}>Holiday Requests</Text>
           <View style={styles.dropdownRow}>

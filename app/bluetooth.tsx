@@ -1,0 +1,5 @@
+// bluetooth.tsx
+
+function findDevice(){
+
+}
