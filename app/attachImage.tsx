@@ -13,6 +13,8 @@ export default function Camera() {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<any>(null);
   const cameraRef = useRef<CameraView | null>(null);
+
+  let image = photo;
   
   if (!permission) {
     
@@ -43,13 +45,42 @@ export default function Camera() {
             base64: true,
             exif: false,
         };
-        const takedPhoto = await cameraRef.current.takePictureAsync(options);
+        const takenPhoto = await cameraRef.current.takePictureAsync(options);
 
-        setPhoto(takedPhoto);
+        setPhoto(takenPhoto);
+        
     }
   }; 
 
   const handleRetakePhoto = () => setPhoto(null);
+
+  const sendPhotoToServer = async () => {
+    try{
+
+      const formData = new FormData();
+
+      formData.append("image", {
+        uri: photo.uri,
+        name: "photo.jpg",
+        type: "image/jpeg"
+      } as any);
+
+      const response = await fetch(
+        `http://192.168.1.109:3000/api/image`,{
+          method: 'POST',
+          body: formData,
+          headers: {
+            "Content-Type" : "multipart/form-data",
+          },
+        });
+
+        const responseData = await response.json();
+        console.log("Server Response", responseData);
+         
+      } catch(error){
+        console.log(`error sending photo to the server`, error);
+      }
+  }
   
   return photo ? (
     <SafeAreaView style={styles.container}>
@@ -61,7 +92,7 @@ export default function Camera() {
         <TouchableOpacity style={styles.button} onPress={handleRetakePhoto}>
           <Text style={styles.text}> Retake Picture </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={sendPhotoToServer}>
           <Text style={styles.text}> Use Picture </Text>
         </TouchableOpacity>
       </View>
