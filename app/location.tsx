@@ -1,80 +1,120 @@
-import { StyleSheet, Text, Alert, View} from 'react-native'
+//location.tsx
+
+import { StyleSheet, Text, Alert, View, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as Location from 'expo-location'
+import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
 const HomeScreen = () => {
-  const [displayCurrentAddress, setDisplayCurrentAddress] = useState('Location Loading.....');
-  const [locationServicesEnabled, setLocationServicesEnabled] = useState(false)
-  useEffect(()=>{
-   checkIfLocationEnabled();
-   getCurrentLocation();
-  },[])
+  const { colleagueID } = useLocalSearchParams();
+  const router = useRouter();
 
-  const checkIfLocationEnabled= async ()=>{
-    let enabled = await Location.hasServicesEnabledAsync();      
-    if(!enabled){                     
+  const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
+  const [coordinates, setCoordinates] = useState<Location.LocationObject | null>(null);
+
+  function home() {
+    router.replace({ pathname: "/(tabs)", params: { colleagueID } });
+  }
+
+  useEffect(() => {
+    checkIfLocationEnabled();
+    getCurrentLocation();
+  }, []);
+
+  const checkIfLocationEnabled = async () => {
+    let enabled = await Location.hasServicesEnabledAsync();
+    if (!enabled) {
       Alert.alert('Location not enabled', 'Please enable your Location', [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {text: 'OK', onPress: () => console.log('OK Pressed')},
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK' },
       ]);
-    }else{
-      setLocationServicesEnabled(enabled)        
+    } else {
+      setLocationServicesEnabled(enabled);
       console.log("Location services enabled: ", enabled);
     }
-  }
- 
-  const getCurrentLocation= async ()=>{
-       let {status} = await Location.requestForegroundPermissionsAsync();  
-      console.log(status);
-       if(status !== 'granted'){
-        Alert.alert('Permission denied', 'Allow the app to use the location services', [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
-        ]);
-       }
+  };
 
-       const {coords} = await Location.getCurrentPositionAsync();  
-       console.log(coords)
-       
-       if(coords){
-        const {latitude,longitude} =coords;
-        console.log(latitude,longitude);
+  const getCurrentLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    console.log(status);
 
-        let responce = await Location.reverseGeocodeAsync({           
-          latitude,
-          longitude
-        });
-        console.log(responce);
-       
-        for(let item of responce ){
-         let address = `${item.name} ${item.city} ${item.postalCode}`
-          setDisplayCurrentAddress(address)
-          console.log(displayCurrentAddress)
-        }
-           }
-  }
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Allow the app to use the location services', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'OK' },
+      ]);
+      return;
+    }
+
+    const locationData = await Location.getCurrentPositionAsync(); 
+    console.log("Coordinates: ", locationData); 
+    setCoordinates(locationData); 
+  };
+
+  const compareLocations = async () => {
+    if (!coordinates) {
+      console.log("No coordinates available");
+      return;
+    }
+
+    const { latitude, longitude } = coordinates.coords;
+
+    try {
+      const response = await fetch(
+        `http://10.201.35.121:3000/api/location?lat2=${latitude}&lon2=${longitude}`
+      );
+      const data = await response.json();
   
-  return (
-    <SafeAreaView style = {styles.container}>
-      <View><Text>{displayCurrentAddress}</Text></View>
-      <Text>HomeScreen</Text>
-    </SafeAreaView>
-  )
-}
+      if (data.success) {
+        console.log("Clock in successful");
+      } else {
+        console.log("Clock in unsuccessful");
+      }
+    } catch (error) {
+      console.error("Error comparing locations:", error);
+    }
+  };
 
-export default HomeScreen
+  return (
+    <SafeAreaView style={styles.container}>
+      <View>
+        {coordinates ? (
+          <Text>Latitude: {coordinates.coords.latitude}, Longitude: {coordinates.coords.longitude}</Text>
+        ) : (
+          <Text>Fetching location...</Text>
+        )}
+      </View>
+
+      <TouchableOpacity onPress={compareLocations} style={styles.button}>
+        <Text style={styles.buttonText}>Compare Locations</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={home} style={styles.button}>
+        <Text style={styles.buttonText}>Okay</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+};
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
-    container:{
-        backgroundColor: 'white'
-    }
-})
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: '#005DA0',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});

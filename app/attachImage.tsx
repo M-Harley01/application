@@ -64,7 +64,7 @@ export default function Camera() {
       } as any);
 
       const response = await fetch(
-        `http://192.168.1.109:3000/api/image`,{
+        `http://10.201.35.121:3000/api/image`,{
           method: 'POST',
           body: formData,
           headers: {

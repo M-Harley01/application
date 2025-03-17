@@ -32,7 +32,7 @@ export default function ProfileScreen() {
   const fetchUserDetails = async () => {
     try{
       const response = await fetch(
-        `http://192.168.1.109:3000/api/profile?colleagueID=${colleagueID}`
+        `http://10.201.35.121:3000/api/profile?colleagueID=${colleagueID}`
       );
 
       const data = await response.json();
@@ -54,7 +54,7 @@ export default function ProfileScreen() {
   }
 
   function locationTime(){
-    router.replace({pathname: "../location"})
+    router.replace({pathname: "../location", params: {colleagueID}})
   }
 
   const months = [
