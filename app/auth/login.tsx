@@ -1,8 +1,9 @@
 //login.tsx
 
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import * as Location from "expo-location"
 
 export default function LoginScreen() {
   const [userId, setInput1] = useState(""); 
@@ -25,6 +26,7 @@ export default function LoginScreen() {
       if(data.success){
         setServerResponse("success");
         setLoggedIn(true);
+        await sendLocation();
         router.replace({pathname: "/(tabs)", params: {colleagueID: userId}});
       }else{
         setServerResponse("Incorrect username or password")
@@ -36,6 +38,34 @@ export default function LoginScreen() {
       setServerResponse("Failed to send data.");
     }
   };
+
+  const sendLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted"){
+      Alert.alert("permission denied", "allow location for check-in")
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+
+    try{
+      const response = await fetch("http://10.201.35.121:3000/api/setLocation", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({lat: latitude, lon: longitude}),
+      });
+
+      const data = await response.json();
+      if(data.success){
+        console.log("coordinates set on the server");
+      }else{
+        console.error("failed to set location");
+      }
+    }catch(error){
+      console.error("error sending location: ", error);
+    }
+  }
 
   return (
     <View style={styles.Background}>

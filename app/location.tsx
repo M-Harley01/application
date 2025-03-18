@@ -1,9 +1,7 @@
-//location.tsx
-
-import { StyleSheet, Text, Alert, View, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import * as Location from 'expo-location'
+import { StyleSheet, Text, Alert, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 
@@ -11,66 +9,77 @@ const HomeScreen = () => {
   const { colleagueID } = useLocalSearchParams();
   const router = useRouter();
 
-  const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
   const [coordinates, setCoordinates] = useState<Location.LocationObject | null>(null);
+  const [serverLocationSet, setServerLocationSet] = useState(false);
 
   function home() {
     router.replace({ pathname: "/(tabs)", params: { colleagueID } });
   }
 
   useEffect(() => {
-    checkIfLocationEnabled();
     getCurrentLocation();
   }, []);
 
-  const checkIfLocationEnabled = async () => {
-    let enabled = await Location.hasServicesEnabledAsync();
-    if (!enabled) {
-      Alert.alert('Location not enabled', 'Please enable your Location', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK' },
-      ]);
-    } else {
-      setLocationServicesEnabled(enabled);
-      console.log("Location services enabled: ", enabled);
-    }
-  };
-
+  // **1. Get and Send Initial Location**
   const getCurrentLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    console.log(status);
 
     if (status !== 'granted') {
-      Alert.alert('Permission denied', 'Allow the app to use the location services', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK' },
-      ]);
+      Alert.alert('Permission denied', 'Allow the app to use location services.');
       return;
     }
 
-    const locationData = await Location.getCurrentPositionAsync(); 
-    console.log("Coordinates: ", locationData); 
-    setCoordinates(locationData); 
+    const locationData = await Location.getCurrentPositionAsync();
+    console.log("Initial Location: ", locationData);
+
+    setCoordinates(locationData);
+
+    // **Send this location to the server**
+    sendInitialLocation(locationData.coords.latitude, locationData.coords.longitude);
   };
 
+  const sendInitialLocation = async (lat: number, lon: number) => {
+    try {
+      const response = await fetch("http://10.201.35.121:3000/api/setLocation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat, lon }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setServerLocationSet(true);
+        console.log("Reference location set on server");
+      } else {
+        console.error("Failed to set reference location");
+      }
+    } catch (error) {
+      console.error("Error sending location:", error);
+    }
+  };
+
+  // **2. Check-in Function**
   const compareLocations = async () => {
     if (!coordinates) {
       console.log("No coordinates available");
       return;
     }
 
-    const { latitude, longitude } = coordinates.coords;
+    const locationData = await Location.getCurrentPositionAsync(); // Get updated location
+    setCoordinates(locationData); // Update the state
+
+    const { latitude, longitude } = locationData.coords;
 
     try {
       const response = await fetch(
         `http://10.201.35.121:3000/api/location?lat2=${latitude}&lon2=${longitude}`
       );
       const data = await response.json();
-  
+
       if (data.success) {
-        console.log("Clock in successful");
+        console.log(`Distance from reference point: ${data.distance} meters`);
       } else {
-        console.log("Clock in unsuccessful");
+        console.log("Check-in failed.");
       }
     } catch (error) {
       console.error("Error comparing locations:", error);
@@ -88,7 +97,7 @@ const HomeScreen = () => {
       </View>
 
       <TouchableOpacity onPress={compareLocations} style={styles.button}>
-        <Text style={styles.buttonText}>Compare Locations</Text>
+        <Text style={styles.buttonText}>Check In</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={home} style={styles.button}>
