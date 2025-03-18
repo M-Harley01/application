@@ -20,7 +20,6 @@ const HomeScreen = () => {
     getCurrentLocation();
   }, []);
 
-  // **1. Get and Send Initial Location**
   const getCurrentLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -33,40 +32,16 @@ const HomeScreen = () => {
     console.log("Initial Location: ", locationData);
 
     setCoordinates(locationData);
-
-    // **Send this location to the server**
-    sendInitialLocation(locationData.coords.latitude, locationData.coords.longitude);
   };
 
-  const sendInitialLocation = async (lat: number, lon: number) => {
-    try {
-      const response = await fetch("http://10.201.35.121:3000/api/setLocation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat, lon }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setServerLocationSet(true);
-        console.log("Reference location set on server");
-      } else {
-        console.error("Failed to set reference location");
-      }
-    } catch (error) {
-      console.error("Error sending location:", error);
-    }
-  };
-
-  // **2. Check-in Function**
   const compareLocations = async () => {
     if (!coordinates) {
       console.log("No coordinates available");
       return;
     }
 
-    const locationData = await Location.getCurrentPositionAsync(); // Get updated location
-    setCoordinates(locationData); // Update the state
+    const locationData = await Location.getCurrentPositionAsync(); 
+    setCoordinates(locationData); 
 
     const { latitude, longitude } = locationData.coords;
 
