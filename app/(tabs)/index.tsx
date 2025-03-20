@@ -61,6 +61,26 @@ export default function ProfileScreen() {
     }
   }
 
+  const handleCheckOut = async () => {
+    try {
+      const response = await fetch("http://192.168.0.30:3000/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userID: colleagueID }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log("Checked out successfully");
+        router.replace({ pathname: "/(tabs)", params: { colleagueID, refresh: Date.now().toString() } });
+      } else {
+        console.error("Check-out failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Error during check-out:", error);
+    }
+  };
+
   function locationTime(){
     router.replace({pathname: "../location", params: {colleagueID}})
   }
@@ -120,9 +140,7 @@ export default function ProfileScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" nestedScrollEnabled={true}>
-        <View style={styles.header}>
-          <Text style={styles.headingText}>Profile</Text>
-        </View>
+
         <View style={styles.section}>
           <Text style={styles.text}>FirstName: {firstName}</Text>
           <Text style={styles.text}>FirstName: {lastName}</Text>
@@ -145,9 +163,9 @@ export default function ProfileScreen() {
         </View>
 
         {checkedIn ? (
-          <TouchableOpacity style={[styles.editButton, styles.disabledButton]} disabled>
-            <Text style={styles.disabledText}>Clocked In</Text>
-          </TouchableOpacity>
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckOut}>
+          <Text style={styles.checkoutText}>Check Out</Text>
+        </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.editButton} onPress={locationTime}>
             <Text style={styles.editButtonText}>Clock In</Text>
@@ -177,8 +195,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#AAC4EA", paddingBottom: 50 },
   scrollContent: { padding: 10 },
-  header: { backgroundColor: "#005DA0", padding: 20, borderRadius: 10, marginBottom: 20 },
-  headingText: { fontSize: 32, fontWeight: "bold", color: "#ffffff", textAlign: "center" },
   section: { backgroundColor: "#005DA0", padding: 20, borderRadius: 10, marginBottom: 20 },
   infoBox: { backgroundColor: "rgba(0, 93, 160, 0.56)", padding: 20, borderRadius: 10, marginBottom: 20 },
   text: { fontSize: 18, color: "#ffffff", paddingBottom: 5 },
@@ -197,4 +213,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
   },
+  checkoutButton: { backgroundColor: "#dc3545", padding: 10, borderRadius: 5, alignSelf: "center", marginTop: 10 },
+  checkoutText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
 });

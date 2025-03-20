@@ -6,13 +6,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
+import { StatusBar } from 'expo-status-bar';
+
+<StatusBar style="light" backgroundColor="#005DA0" />
 
 const HomeScreen = () => {
   const { colleagueID } = useLocalSearchParams();
   const router = useRouter();
 
   const [checkedIn, setCheckedIn] = useState(false);
-
   const [coordinates, setCoordinates] = useState<Location.LocationObject | null>(null);
 
   function home() {

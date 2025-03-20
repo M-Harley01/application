@@ -73,9 +73,6 @@ export default function ScheduleScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headingText}>Schedule</Text>
-      </View>
 
       {/* DropDowns in a Row */}
       <View style={styles.dropdownRow}>
@@ -148,16 +145,6 @@ export default function ScheduleScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f0f0f0" },
-
-  header: {
-    flexDirection: "row",
-    backgroundColor: "#005DA0",
-    padding: 15,
-    alignItems: "center",
-    flexWrap: "wrap",
-    zIndex: 3000,
-  },
-  headingText: { fontSize: 24, color: "#ffffff", fontWeight: "bold", flex: 1 },
 
   dropdownRow: {
     flexDirection: "row",
