@@ -1,9 +1,18 @@
-import { useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
+interface Colleague {
+  firstName: string;
+  lastName: string;
+  colleagueID: string;
+}
+
 export default function ScheduleScreen() {
+
+  const router = useRouter();
+
   const { colleagueID } = useLocalSearchParams();
 
   const [monthOpen, setMonthOpen] = useState(false);
@@ -19,11 +28,17 @@ export default function ScheduleScreen() {
   const [times, setTimes] = useState([]);
   const [types, setTypes] = useState([]);
 
+  const [colleagues, setColleagues] = useState<{ label: string; value: string }[]>([]);
+
   useEffect(() => {
     if (colleagueID && selectedMonth) {
       fetchSchedule();
     }
   }, [colleagueID, selectedMonth]);
+
+  useEffect(() => {
+    fetchColleagues();
+},[]);
 
   const fetchSchedule = async () => {
     try {
@@ -49,6 +64,32 @@ export default function ScheduleScreen() {
     }
   };
 
+  const fetchColleagues = async () => {
+    try{
+      const response = await fetch("http://192.168.0.30:3000/api/colleagues");
+      const data = await response.json();
+
+      if(data.success){
+        const formattedColleagues = data.colleagues.map((colleague: Colleague) => ({
+          label: `${colleague.firstName} ${colleague.lastName}`,
+          value: colleague.colleagueID,
+        }));
+        setColleagues(formattedColleagues);
+      }
+    }catch(error){
+      console.error("Error fetching colleagues")
+    }
+  };
+
+  const handleColleagueSelect = (value: string | null) => {
+    if(value){
+      router.push({
+        pathname: "../colleagueSchedule",
+        params: { colleagueID: value, month: selectedMonth},
+      });
+    }
+  }
+
   const months = [
     { label: "January", value: "January" },
     { label: "February", value: "February" },
@@ -64,12 +105,6 @@ export default function ScheduleScreen() {
     { label: "December", value: "December" },
   ];
 
-  const colleagues = [
-    { label: "Alice Johnson", value: "Alice Johnson" },
-    { label: "Bob Smith", value: "Bob Smith" },
-    { label: "Charlie Davis", value: "Charlie Davis" },
-    { label: "Diana Roberts", value: "Diana Roberts" },
-  ];
 
   return (
     <View style={styles.container}>
@@ -102,6 +137,7 @@ export default function ScheduleScreen() {
             containerStyle={styles.dropdownContainer}
             dropDownContainerStyle={styles.dropdownAbsolute}
             textStyle={{ fontSize: 14 }}
+            onChangeValue={handleColleagueSelect}
           />
         </View>
 
