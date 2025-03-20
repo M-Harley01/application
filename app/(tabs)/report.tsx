@@ -1,17 +1,14 @@
-/* report.tsx */ 
-
-import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
+import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import { TextInput } from 'react-native';
 import React, { useState } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
-import { useRouter } from "expo-router";
-import { useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function ReportScreen() {
   const router = useRouter();
+  const { colleagueID, imageUri } = useLocalSearchParams(); // Capture the image URI from params
 
-  const {colleagueID} = useLocalSearchParams();
+  const [description, setDescription] = useState("");
 
   const [urgencyOpen, setUrgencyOpen] = useState(false);
   const [selectedUrgency, setSelectedUrgency] = useState(null);
@@ -29,6 +26,49 @@ export default function ReportScreen() {
     { label: "Customer Service Issue", value: "customer_service_issue" },
   ];
 
+  const submitIssue = async () => {
+    if (!selectedUrgency || !selectedCategory || !description.trim()) {
+      Alert.alert("Please complete all fields before submitting.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("colleagueID", Array.isArray(colleagueID) ? colleagueID[0] : colleagueID);
+    formData.append("urgency", selectedUrgency);
+    formData.append("category", selectedCategory);
+    formData.append("description", description);
+  
+    // Attach the image if available
+    if (imageUri) {
+      formData.append("image", {
+        uri: imageUri,
+        name: "issue_photo.jpg",
+        type: "image/jpeg",
+      } as any);
+    }
+  
+    try {
+      const response = await fetch("http://192.168.0.30:3000/api/reportIssue", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert("Success", "Issue submitted successfully.");
+        router.replace({ pathname: "/(tabs)", params: { colleagueID } });
+      } else {
+        Alert.alert("Error", "Failed to submit issue.");
+      }
+    } catch (error) {
+      console.error("Error submitting issue:", error);
+    }
+  };
+  
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
@@ -36,42 +76,49 @@ export default function ReportScreen() {
           style={styles.textBox}
           placeholder="Enter your text..."
           multiline={true}
+          value={description}
+          onChangeText={setDescription}
         />
-        <TouchableOpacity style={styles.editButton} onPress={() => router.replace({pathname:"../attachImage", params:{colleagueID}})}>
+
+        {imageUri && typeof imageUri === "string" && ( // Display the image if it's available
+          <Image source={{ uri: imageUri }} style={styles.previewImage} />
+        )}
+
+        <TouchableOpacity 
+          style={styles.editButton} 
+          onPress={() => router.push({ pathname: "../attachImage", params: { colleagueID } })}>
           <Text style={styles.editButtonText}>Attach Image</Text>
         </TouchableOpacity>
 
         <DropDownPicker
-        open={urgencyOpen}
-        value={selectedUrgency}
-        items={urgencyOptions}
-        setOpen={setUrgencyOpen}
-        setValue={setSelectedUrgency}
-        placeholder="Select Urgency"
-        style={styles.dropdown}
-        containerStyle={styles.dropdownContainer}
-        textStyle={{ fontSize: 16 }}
-      />
+          open={urgencyOpen}
+          value={selectedUrgency}
+          items={urgencyOptions}
+          setOpen={setUrgencyOpen}
+          setValue={setSelectedUrgency}
+          placeholder="Select Urgency"
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          textStyle={{ fontSize: 16 }}
+        />
 
-<DropDownPicker
-        open={categoryOpen}
-        value={selectedCategory}
-        items={categoryOptions}
-        setOpen={setCategoryOpen}
-        setValue={setSelectedCategory}
-        placeholder="Select Category"
-        style={styles.dropdown}
-        containerStyle={styles.dropdownContainer}
-        textStyle={{ fontSize: 16 }}
-      />
+        <DropDownPicker
+          open={categoryOpen}
+          value={selectedCategory}
+          items={categoryOptions}
+          setOpen={setCategoryOpen}
+          setValue={setSelectedCategory}
+          placeholder="Select Category"
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          textStyle={{ fontSize: 16 }}
+        />
 
-<TouchableOpacity style={styles.editButton}>
-                    <Text style={styles.editButtonText}>Submit Issue</Text>
-                  </TouchableOpacity>
-
+        <TouchableOpacity style={styles.editButton} onPress={submitIssue}>
+          <Text style={styles.editButtonText}>Submit Issue</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
-    
   );
 }
 
@@ -92,14 +139,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,  
     textAlign: "left",  
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: "#ffffff"
+  previewImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    marginVertical: 10,
   },
   dropdownContainer: {
-    marginBottom: 15, // Spacing between dropdowns
-    zIndex: 1000, // Prevents overlap issues
+    marginBottom: 15,
+    zIndex: 1000,
   },
   dropdown: {
     backgroundColor: "#fff",
@@ -107,8 +155,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
   },
-  editButton: { backgroundColor: "#E0E0E0", padding: 10, borderRadius: 5, alignSelf: "flex-start", marginBottom: 10 },
+  editButton: { 
+    backgroundColor: "#E0E0E0", 
+    padding: 10, 
+    borderRadius: 5, 
+    alignSelf: "flex-start", 
+    marginBottom: 10 
+  },
   editButtonText: { fontSize: 16, fontWeight: "bold" },
-
-
 });

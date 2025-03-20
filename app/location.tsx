@@ -1,3 +1,5 @@
+//Location.tsx
+
 import { StyleSheet, Text, Alert, View, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,18 +11,19 @@ const HomeScreen = () => {
   const { colleagueID } = useLocalSearchParams();
   const router = useRouter();
 
+  const [checkedIn, setCheckedIn] = useState(false);
+
   const [coordinates, setCoordinates] = useState<Location.LocationObject | null>(null);
-  const [serverLocationSet, setServerLocationSet] = useState(false);
 
   function home() {
-    router.replace({ pathname: "/(tabs)", params: { colleagueID } });
+    router.replace({ pathname: "/(tabs)", params: { colleagueID, refresh: Math.random().toString()}});
   }
 
   useEffect(() => {
-    getCurrentLocation();
+    requestLocationPermissions();
   }, []);
 
-  const getCurrentLocation = async () => {
+  const requestLocationPermissions = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
 
     if (status !== 'granted') {
@@ -28,33 +31,44 @@ const HomeScreen = () => {
       return;
     }
 
-    const locationData = await Location.getCurrentPositionAsync();
-    console.log("Initial Location: ", locationData);
+    trackLocation();
+  };
 
-    setCoordinates(locationData);
+  const trackLocation = async () => {
+    await Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.High,
+        timeInterval: 2000,
+        distanceInterval: 1,
+      },
+      (location) => {
+        console.log("live location updade: ", location.coords)
+        setCoordinates(location);
+      }
+    );
   };
 
   const compareLocations = async () => {
-    if (!coordinates) {
+
+    if(!coordinates){
       console.log("No coordinates available");
       return;
     }
-
-    const locationData = await Location.getCurrentPositionAsync(); 
-    setCoordinates(locationData); 
-
-    const { latitude, longitude } = locationData.coords;
-
+    
     try {
+      const { latitude, longitude } = coordinates.coords;
+
       const response = await fetch(
-        `http://10.201.35.121:3000/api/location?lat2=${latitude}&lon2=${longitude}`
+        `http://192.168.0.30:3000/api/location?userID=${colleagueID}&lat2=${latitude}&lon2=${longitude}`
       );
       const data = await response.json();
 
       if (data.success) {
+        setCheckedIn(true);
         console.log(`Distance from reference point: ${data.distance} meters`);
+        router.replace({pathname: "/(tabs)", params: {colleagueID}})
       } else {
-        console.log("Check-in failed.");
+        console.log("Check-in failed. Try again");
       }
     } catch (error) {
       console.error("Error comparing locations:", error);
@@ -64,8 +78,8 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View>
-        {coordinates ? (
-          <Text>Latitude: {coordinates.coords.latitude}, Longitude: {coordinates.coords.longitude}</Text>
+        {checkedIn ? (
+          <Text>Check In Successful</Text>
         ) : (
           <Text>Fetching location...</Text>
         )}

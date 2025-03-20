@@ -1,13 +1,10 @@
-// schedule.tsx
-
 import { useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
 export default function ScheduleScreen() {
-
-  const {colleagueID} = useLocalSearchParams();
+  const { colleagueID } = useLocalSearchParams();
 
   const [monthOpen, setMonthOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("February");
@@ -22,39 +19,35 @@ export default function ScheduleScreen() {
   const [times, setTimes] = useState([]);
   const [types, setTypes] = useState([]);
 
-useEffect(() => {
-  if (colleagueID && selectedMonth) {
-    fetchSchedule();
-  }
-}, [colleagueID, selectedMonth]); 
+  useEffect(() => {
+    if (colleagueID && selectedMonth) {
+      fetchSchedule();
+    }
+  }, [colleagueID, selectedMonth]);
 
-const fetchSchedule = async () => {
-  try {
-    const response = await fetch(
-      `http://10.201.35.121:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
-    );
-    const data = await response.json();
+  const fetchSchedule = async () => {
+    try {
+      const response = await fetch(
+        `http://192.168.0.30:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
+      );
+      const data = await response.json();
 
-    if (data.success) {
-      setDates(data.dayDates);
-      setTimes(data.times);
-      setTypes(data.types);
-    } else {
+      if (data.success) {
+        setDates(data.dayDates);
+        setTimes(data.times);
+        setTypes(data.types);
+      } else {
+        setDates([]);
+        setTimes([]);
+        setTypes([]);
+      }
+    } catch (error) {
+      console.error("Error fetching schedule:", error);
       setDates([]);
       setTimes([]);
       setTypes([]);
-
-      console.log("Fetched Dates:", data.dayDates);
-      console.log("Fetched Times:", data.times);
-      console.log("Fetched Types:", data.types);
     }
-  } catch (error) {
-    console.error("Error fetching schedule:", error);
-    setDates([]);
-    setTimes([]);
-    setTypes([]);
-  }
-};
+  };
 
   const months = [
     { label: "January", value: "January" },
@@ -68,8 +61,8 @@ const fetchSchedule = async () => {
     { label: "September", value: "September" },
     { label: "October", value: "October" },
     { label: "November", value: "November" },
-    { label: "December", value: "December" }
-];
+    { label: "December", value: "December" },
+  ];
 
   const colleagues = [
     { label: "Alice Johnson", value: "Alice Johnson" },
@@ -80,12 +73,13 @@ const fetchSchedule = async () => {
 
   return (
     <View style={styles.container}>
-
       <View style={styles.header}>
         <Text style={styles.headingText}>Schedule</Text>
-        </View>
+      </View>
 
-        <View style={{ zIndex: 3000, elevation: 3000 }}>
+      {/* DropDowns in a Row */}
+      <View style={styles.dropdownRow}>
+        <View style={[styles.dropdownWrapper, { zIndex: monthOpen ? 3000 : 1 }]}>
           <DropDownPicker
             open={monthOpen}
             value={selectedMonth}
@@ -94,11 +88,12 @@ const fetchSchedule = async () => {
             setValue={setSelectedMonth}
             style={styles.dropdown}
             containerStyle={styles.dropdownContainer}
+            dropDownContainerStyle={styles.dropdownAbsolute}
             textStyle={{ fontSize: 14 }}
           />
         </View>
 
-        <View style={{ zIndex: 2000, elevation: 2000 }}>
+        <View style={[styles.dropdownWrapper, { zIndex: filterOpen ? 2500 : 1 }]}>
           <DropDownPicker
             open={filterOpen}
             value={selectedFilter}
@@ -108,11 +103,12 @@ const fetchSchedule = async () => {
             placeholder="Filter by Colleague"
             style={styles.dropdown}
             containerStyle={styles.dropdownContainer}
+            dropDownContainerStyle={styles.dropdownAbsolute}
             textStyle={{ fontSize: 14 }}
           />
         </View>
 
-        <View style={{ zIndex: 1000, elevation: 1000 }}>
+        <View style={[styles.dropdownWrapper, { zIndex: swapOpen ? 2000 : 1 }]}>
           <DropDownPicker
             open={swapOpen}
             value={selectedSwap}
@@ -122,27 +118,30 @@ const fetchSchedule = async () => {
             placeholder="Request Swap"
             style={styles.dropdown}
             containerStyle={styles.dropdownContainer}
+            dropDownContainerStyle={styles.dropdownAbsolute}
             textStyle={{ fontSize: 14 }}
           />
         </View>
-      
-        <ScrollView style={styles.scheduleContainer}>
-          {dates.length > 0 ? (
-            dates.map((date, index) => (
-              <View key={index} style={styles.shiftRow}>
-                <View style={styles.dayColumn}>
-                  <Text style={styles.dayText}>{date}</Text>
-                </View>
-                <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
-                  <Text style={styles.shiftTime}>{times[index]}</Text>
-                  {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
-                </View>
+      </View>
+
+      {/* Schedule Table */}
+      <ScrollView style={styles.scheduleContainer}>
+        {dates.length > 0 ? (
+          dates.map((date, index) => (
+            <View key={index} style={styles.shiftRow}>
+              <View style={styles.dayColumn}>
+                <Text style={styles.dayText}>{date}</Text>
               </View>
-            ))
-          ) : (
-            <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
-          )}
-        </ScrollView>
+              <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
+                <Text style={styles.shiftTime}>{times[index]}</Text>
+                {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
+              </View>
+            </View>
+          ))
+        ) : (
+          <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -150,26 +149,48 @@ const fetchSchedule = async () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f0f0f0" },
 
-  header: { 
-    flexDirection: "row", 
-    backgroundColor: "#005DA0", 
-    padding: 15, 
-    alignItems: "center", 
+  header: {
+    flexDirection: "row",
+    backgroundColor: "#005DA0",
+    padding: 15,
+    alignItems: "center",
     flexWrap: "wrap",
-    zIndex: 3000, 
+    zIndex: 3000,
   },
   headingText: { fontSize: 24, color: "#ffffff", fontWeight: "bold", flex: 1 },
 
-  dropdownContainer: { 
-    width: 140, 
-    marginHorizontal: 5, 
+  dropdownRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
-  dropdown: { backgroundColor: "#fff", borderRadius: 5, height: 40 },
+  dropdownWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  dropdownContainer: {
+    width: "100%",
+    position: "relative",
+  },
+  dropdownAbsolute: {
+    position: "absolute",
+    top: 40,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    zIndex: 4000,
+  },
+  dropdown: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    height: 40,
+  },
 
-  scheduleContainer: { 
-    paddingHorizontal: 10, 
-    marginTop: 10,  
-    zIndex: 1,  
+  scheduleContainer: {
+    paddingHorizontal: 10,
+    marginTop: 10,
+    zIndex: 1,
   },
   shiftRow: { flexDirection: "row", marginBottom: 8, alignItems: "center" },
   dayColumn: { width: 80, backgroundColor: "#9e9e9e", padding: 10, borderRadius: 5, alignItems: "center" },
@@ -179,3 +200,4 @@ const styles = StyleSheet.create({
   shiftType: { color: "#ffffff", fontSize: 14, textAlign: "center" },
   notScheduled: { backgroundColor: "#AAC4EA" },
 });
+

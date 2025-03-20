@@ -15,7 +15,12 @@ export default function ProfileScreen() {
   const [endOpen, setEndOpen] = useState(false);
   const [endValue, setEndValue] = useState(null);
 
-  const {colleagueID} = useLocalSearchParams();
+  const {colleagueID, refresh} = useLocalSearchParams();
+  const params = useLocalSearchParams();
+
+  const [checkedIn, setCheckedIn] = useState(false);
+
+  console.log(`app check in is set to ` + checkedIn);
 
   const [firstName, setFname] = useState("");
   const [lastName, setLname] = useState("");
@@ -27,16 +32,18 @@ export default function ProfileScreen() {
     if (colleagueID) {
       fetchUserDetails();
     }
-  }, [colleagueID]);
+  }, [colleagueID, refresh]);
 
   const fetchUserDetails = async () => {
     try{
       const response = await fetch(
-        `http://10.201.35.121:3000/api/profile?colleagueID=${colleagueID}`
+        `http://192.168.0.30:3000/api/profile?colleagueID=${colleagueID}`
       );
 
       const data = await response.json();
       console.log("Raw server response:", data);
+
+      console.log(`checked in on the server is ` + data.checkedIn);
 
       if(data.success){
         setFname(data.firstName);
@@ -44,6 +51,7 @@ export default function ProfileScreen() {
         setContact(data.contactNo);
         setPosition(data.position);
         setLocation(data.location);
+        setCheckedIn(data.checkedIn);
       }
       else{
         console.error("failed getting details: ", data.message);
@@ -136,9 +144,15 @@ export default function ProfileScreen() {
           <Text style={styles.text}>Holidays: 28 days</Text>
         </View>
 
-        <TouchableOpacity style={styles.editButton} onPress={locationTime}>
-          <Text>Clock In</Text>
-        </TouchableOpacity>
+        {checkedIn ? (
+          <TouchableOpacity style={[styles.editButton, styles.disabledButton]} disabled>
+            <Text style={styles.disabledText}>Clocked In</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.editButton} onPress={locationTime}>
+            <Text style={styles.editButtonText}>Clock In</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.subHeadingText}>Holiday Requests</Text>
@@ -175,4 +189,12 @@ const styles = StyleSheet.create({
   dropdown: { width: 140 },
   submitButton: { backgroundColor: "#E0E0E0", padding: 10, borderRadius: 5, alignSelf: "center", marginTop: 10, minWidth: 100, textAlign: "center" },
   submitButtonText: { fontSize: 16, fontWeight: "bold" },
+  disabledButton: {
+    backgroundColor: "#A0A0A0", 
+    opacity: 0.6,
+  },
+  disabledText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
 });

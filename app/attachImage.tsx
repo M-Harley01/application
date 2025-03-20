@@ -1,3 +1,5 @@
+// attachImage.tsx
+
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, Image } from 'react-native';
@@ -52,34 +54,9 @@ export default function Camera() {
 
   const handleRetakePhoto = () => setPhoto(null);
 
-  const sendPhotoToServer = async () => {
-    try{
-
-      const formData = new FormData();
-
-      formData.append("image", {
-        uri: photo.uri,
-        name: "photo.jpg",
-        type: "image/jpeg"
-      } as any);
-
-      const response = await fetch(
-        `http://10.201.35.121:3000/api/image`,{
-          method: 'POST',
-          body: formData,
-          headers: {
-            "Content-Type" : "multipart/form-data",
-          },
-        });
-
-        const responseData = await response.json();
-        console.log("Server Response", responseData);
-        router.replace({pathname: "/(tabs)", params: {colleagueID}})
-         
-      } catch(error){
-        console.log(`error sending photo to the server`, error);
-      }
-  }
+  const sendPhotoToReportScreen = () => {
+    router.replace({ pathname: "../report", params: { colleagueID, imageUri: photo.uri } });
+  };
   
   return photo ? (
     <SafeAreaView style={styles.container}>
@@ -91,7 +68,7 @@ export default function Camera() {
         <TouchableOpacity style={styles.button} onPress={handleRetakePhoto}>
           <Text style={styles.text}> Retake Picture </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={sendPhotoToServer}>
+        <TouchableOpacity style={styles.button} onPress={sendPhotoToReportScreen}>
           <Text style={styles.text}> Use Picture </Text>
         </TouchableOpacity>
       </View>
