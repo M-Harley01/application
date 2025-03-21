@@ -15,7 +15,7 @@ export default function LoginScreen() {
 
   const sendDataToServer = async () => {
     try {
-      const response = await fetch("http://192.168.0.30:3000/api/receive", {
+      const response = await fetch("http://192.168.1.109:3000/api/receive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ colleagueID: userId, password }), 
@@ -48,7 +48,7 @@ export default function LoginScreen() {
     const { latitude, longitude } = location.coords;
 
     try{
-      const response = await fetch("http://192.168.0.30:3000/api/setLocation", {
+      const response = await fetch("http://192.168.1.109:3000/api/setLocation", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({lat: latitude, lon: longitude}),

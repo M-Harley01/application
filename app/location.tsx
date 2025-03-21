@@ -61,7 +61,7 @@ const HomeScreen = () => {
       const { latitude, longitude } = coordinates.coords;
 
       const response = await fetch(
-        `http://192.168.0.30:3000/api/location?userID=${colleagueID}&lat2=${latitude}&lon2=${longitude}`
+        `http://192.168.1.109:3000/api/location?userID=${colleagueID}&lat2=${latitude}&lon2=${longitude}`
       );
       const data = await response.json();
 

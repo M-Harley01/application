@@ -1,3 +1,5 @@
+//schedule.tsx
+
 import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
@@ -43,7 +45,7 @@ export default function ScheduleScreen() {
   const fetchSchedule = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.30:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
+        `http://192.168.1.109:3000/api/schedule?colleagueID=${colleagueID}&month=${selectedMonth}`
       );
       const data = await response.json();
 
@@ -66,15 +68,19 @@ export default function ScheduleScreen() {
 
   const fetchColleagues = async () => {
     try{
-      const response = await fetch("http://192.168.0.30:3000/api/colleagues");
+      const response = await fetch("http://192.168.1.109:3000/api/colleagues");
       const data = await response.json();
 
       if(data.success){
-        const formattedColleagues = data.colleagues.map((colleague: Colleague) => ({
-          label: `${colleague.firstName} ${colleague.lastName}`,
-          value: colleague.colleagueID,
+        const allColleagues = data.colleagues;
+
+        const filtered = allColleagues.filter((c: Colleague) => c.colleagueID !== colleagueID);
+
+        const formatted = filtered.map((c: Colleague)=> ({
+          label: `${c.firstName} ${c.lastName}`,
+          value: c.colleagueID
         }));
-        setColleagues(formattedColleagues);
+        setColleagues(formatted);
       }
     }catch(error){
       console.error("Error fetching colleagues")
@@ -85,7 +91,22 @@ export default function ScheduleScreen() {
     if(value){
       router.push({
         pathname: "../colleagueSchedule",
-        params: { colleagueID: value, month: selectedMonth},
+        params: { 
+          colleagueID: value, 
+          month: selectedMonth
+        }
+      });
+    }
+  }
+
+  const handleShiftChange = (value: string | null) => {
+    if(value){
+      router.push({
+        pathname: "../shiftSwap",
+        params: {
+          colleagueID: value,
+          personalID: colleagueID
+        }
       });
     }
   }
@@ -132,7 +153,7 @@ export default function ScheduleScreen() {
             items={colleagues}
             setOpen={setFilterOpen}
             setValue={setSelectedFilter}
-            placeholder="Filter by Colleague"
+            placeholder="View Colleague shifts"
             style={styles.dropdown}
             containerStyle={styles.dropdownContainer}
             dropDownContainerStyle={styles.dropdownAbsolute}
@@ -153,6 +174,7 @@ export default function ScheduleScreen() {
             containerStyle={styles.dropdownContainer}
             dropDownContainerStyle={styles.dropdownAbsolute}
             textStyle={{ fontSize: 14 }}
+            onChangeValue={handleShiftChange}
           />
         </View>
       </View>
@@ -223,4 +245,3 @@ const styles = StyleSheet.create({
   shiftType: { color: "#ffffff", fontSize: 14, textAlign: "center" },
   notScheduled: { backgroundColor: "#AAC4EA" },
 });
-

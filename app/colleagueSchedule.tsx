@@ -19,7 +19,7 @@ export default function ColleagueScheduleScreen() {
   const fetchColleagueSchedule = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.30:3000/api/schedule?colleagueID=${colleagueID}&month=${month}`
+        `http://192.168.1.109:3000/api/schedule?colleagueID=${colleagueID}&month=${month}`
       );
       const data = await response.json();
 

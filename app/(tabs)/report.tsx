@@ -48,7 +48,7 @@ export default function ReportScreen() {
     }
   
     try {
-      const response = await fetch("http://192.168.0.30:3000/api/reportIssue", {
+      const response = await fetch("http://192.168.1.109:3000/api/reportIssue", {
         method: "POST",
         body: formData,
         headers: {

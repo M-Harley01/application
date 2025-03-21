@@ -37,7 +37,7 @@ export default function ProfileScreen() {
   const fetchUserDetails = async () => {
     try{
       const response = await fetch(
-        `http://192.168.0.30:3000/api/profile?colleagueID=${colleagueID}`
+        `http://192.168.1.109:3000/api/profile?colleagueID=${colleagueID}`
       );
 
       const data = await response.json();
@@ -63,7 +63,7 @@ export default function ProfileScreen() {
 
   const handleCheckOut = async () => {
     try {
-      const response = await fetch("http://192.168.0.30:3000/api/checkout", {
+      const response = await fetch("http://192.168.1.109:3000/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userID: colleagueID }),
