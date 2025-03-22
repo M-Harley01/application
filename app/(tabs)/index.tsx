@@ -2,7 +2,7 @@
 
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 
@@ -27,6 +27,7 @@ export default function ProfileScreen() {
   const [contactNo, setContact] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
+  const [holidays, setholidays] = useState<number>(0);
 
   useEffect(() => {
     if (colleagueID) {
@@ -52,6 +53,7 @@ export default function ProfileScreen() {
         setPosition(data.position);
         setLocation(data.location);
         setCheckedIn(data.checkedIn);
+        setholidays(data.holidays);
       }
       else{
         console.error("failed getting details: ", data.message);
@@ -83,6 +85,45 @@ export default function ProfileScreen() {
 
   function locationTime(){
     router.replace({pathname: "../location", params: {colleagueID}})
+  }
+
+  const submitHolidays = async () => {
+
+    if(!colleagueID || !startValue || !startDateValue || !endValue || !endDateValue){
+      Alert.alert("you need to fill out all holiday request details");
+      return;
+    }
+
+    try{
+      const response = await fetch("http://192.168.1.109:3000/api/holidays",{
+        method: "POST",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({
+          colleagueID,
+          start: {
+            month: startValue,
+            date: startDateValue
+          },
+          end: {
+            month: endValue,
+            date: endDateValue
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if(data.success){
+        console.log("Requests submitted successfully")
+        setholidays(data.remainingHolidays);
+      }else{
+        console.error("submission failed");
+      }
+
+    }catch(error){
+      console.error("Error submitting holiday requests: ", error);
+      alert("An error occured submitting the request");
+    }
   }
 
   const months = [
@@ -159,7 +200,7 @@ export default function ProfileScreen() {
           <Text style={styles.text}>Location: {location}</Text>
         </View>
         <View style={styles.infoBox}>
-          <Text style={styles.text}>Holidays: 28 days</Text>
+          <Text style={styles.text}>Holidays: {holidays} days</Text>
         </View>
 
         {checkedIn ? (
@@ -174,16 +215,28 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <Text style={styles.subHeadingText}>Holiday Requests</Text>
+
           <View style={styles.dropdownRow}>
-            <DropDownPicker open={startOpen} value={startValue} items={months} setOpen={setStartOpen} setValue={setStartValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Month" />
-            <DropDownPicker open={startDateOpen} value={startDateValue} items={availableStartDates} setOpen={setStartDateOpen} setValue={setStartDateValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Date" />
+            <View style={[styles.dropdownWrapper, { zIndex: startOpen ? 3000 : 1 }]}>
+            <DropDownPicker dropDownDirection={"TOP"} open={startOpen} value={startValue} items={months} setOpen={setStartOpen} setValue={setStartValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Month" />
+            </View>
+
+            <View style={[styles.dropdownWrapper, { zIndex: startDateOpen ? 2500 : 1 }]}>
+            <DropDownPicker dropDownDirection={"TOP"} open={startDateOpen} value={startDateValue} items={availableStartDates} setOpen={setStartDateOpen} setValue={setStartDateValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Date" />
+            </View>
           </View>
+
           <View style={styles.dropdownRow}>
-            <DropDownPicker open={endOpen} value={endValue} items={months} setOpen={setEndOpen} setValue={setEndValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Month" />
-            <DropDownPicker open={endDateOpen} value={endDateValue} items={availableEndDates} setOpen={setEndDateOpen} setValue={setEndDateValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Date" />
+            <View style={[styles.dropdownWrapper, { zIndex: endOpen ? 2000 : 1 }]}>
+            <DropDownPicker dropDownDirection={"TOP"} open={endOpen} value={endValue} items={months} setOpen={setEndOpen} setValue={setEndValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Month" />
+            </View>
+
+            <View style={[styles.dropdownWrapper, { zIndex: endOpen ? 1500 : 1 }]}>
+            <DropDownPicker dropDownDirection={"TOP"} open={endDateOpen} value={endDateValue} items={availableEndDates} setOpen={setEndDateOpen} setValue={setEndDateValue} style={styles.dropdown} listMode="SCROLLVIEW" placeholder="Select Date" />
+            </View>
           </View>
           <TouchableOpacity style={styles.submitButton}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+            <Text style={styles.submitButtonText} onPress={submitHolidays}>Submit</Text>
           </TouchableOpacity>
         </View>
 
@@ -201,8 +254,9 @@ const styles = StyleSheet.create({
   subHeadingText: { fontSize: 22, fontWeight: "bold", color: "#ffffff", paddingBottom: 10 },
   editButton: { backgroundColor: "#E0E0E0", padding: 10, borderRadius: 5, alignSelf: "flex-start", marginBottom: 10 },
   editButtonText: { fontSize: 16, fontWeight: "bold" },
-  dropdownRow: { flexDirection: "row", paddingRight: 150 },
-  dropdown: { width: 140 },
+  dropdownRow: { flexDirection: "row", paddingRight: -20 , paddingBottom: 10},
+  dropdownWrapper: {flex: 1,marginHorizontal: 5},
+  dropdown: { width: 160 },
   submitButton: { backgroundColor: "#E0E0E0", padding: 10, borderRadius: 5, alignSelf: "center", marginTop: 10, minWidth: 100, textAlign: "center" },
   submitButtonText: { fontSize: 16, fontWeight: "bold" },
   disabledButton: {
@@ -215,4 +269,5 @@ const styles = StyleSheet.create({
   },
   checkoutButton: { backgroundColor: "#dc3545", padding: 10, borderRadius: 5, alignSelf: "center", marginTop: 10 },
   checkoutText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
+  
 });

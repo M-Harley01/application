@@ -10,16 +10,16 @@ export default function TabLayout() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#005DA0" }}>  
-      {/* ✅ Fix: Corrected StatusBar props */}
+
       <StatusBar barStyle="light-content" backgroundColor="#005DA0" />
 
       <Tabs
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: "#005DA0", // ✅ Bottom tab bar color
+            backgroundColor: "#005DA0", 
           },
-          tabBarActiveTintColor: "white", // ✅ Active tab color
-          tabBarInactiveTintColor: "#AAC4EA", // ✅ Inactive tab color
+          tabBarActiveTintColor: "white",
+          tabBarInactiveTintColor: "#AAC4EA", 
 
           headerStyle: {backgroundColor: "#005DA0"},
           headerTintColor: "white",

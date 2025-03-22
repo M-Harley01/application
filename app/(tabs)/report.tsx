@@ -1,3 +1,5 @@
+//report.tsx
+
 import { View, Text, StyleSheet, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Image, Alert } from 'react-native';
 import { TextInput } from 'react-native';
 import React, { useState } from "react";
@@ -6,10 +8,11 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function ReportScreen() {
   const router = useRouter();
-  const { colleagueID, imageUri } = useLocalSearchParams(); // Capture the image URI from params
+  const { colleagueID, imageUri } = useLocalSearchParams();
 
   const [description, setDescription] = useState("");
 
+  const [image, setImage] = useState(typeof imageUri === "string" ? imageUri : null);
   const [urgencyOpen, setUrgencyOpen] = useState(false);
   const [selectedUrgency, setSelectedUrgency] = useState(null);
   const urgencyOptions = [
@@ -31,22 +34,24 @@ export default function ReportScreen() {
       Alert.alert("Please complete all fields before submitting.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("colleagueID", Array.isArray(colleagueID) ? colleagueID[0] : colleagueID);
     formData.append("urgency", selectedUrgency);
     formData.append("category", selectedCategory);
     formData.append("description", description);
-  
-    // Attach the image if available
-    if (imageUri) {
+
+    if (image) {
+
+      const filename = `issue_${colleagueID}_${Date.now()}.jpg`
+
       formData.append("image", {
         uri: imageUri,
-        name: "issue_photo.jpg",
+        name: filename,
         type: "image/jpeg",
       } as any);
     }
-  
+
     try {
       const response = await fetch("http://192.168.1.109:3000/api/reportIssue", {
         method: "POST",
@@ -55,11 +60,18 @@ export default function ReportScreen() {
           "Content-Type": "multipart/form-data",
         },
       });
-  
+
       const data = await response.json();
       if (data.success) {
         Alert.alert("Success", "Issue submitted successfully.");
         router.replace({ pathname: "/(tabs)", params: { colleagueID } });
+
+        setDescription("");
+        setSelectedUrgency(null);
+        setSelectedCategory(null);
+        setUrgencyOpen(false);
+        setCategoryOpen(false);
+        setImage(null);
       } else {
         Alert.alert("Error", "Failed to submit issue.");
       }
@@ -67,55 +79,69 @@ export default function ReportScreen() {
       console.error("Error submitting issue:", error);
     }
   };
-  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <TextInput
           style={styles.textBox}
-          placeholder="Enter your text..."
-          multiline={true}
+          placeholder="Enter issue description..."
+          multiline
           value={description}
           onChangeText={setDescription}
         />
 
-        {imageUri && typeof imageUri === "string" && ( // Display the image if it's available
-          <Image source={{ uri: imageUri }} style={styles.previewImage} />
+        {/* Image preview or placeholder */}
+        {image ? (
+          <Image source={{ uri: image }} style={styles.previewImage} />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Text style={{ color: "#999" }}>Image preview</Text>
+          </View>
         )}
 
-        <TouchableOpacity 
-          style={styles.editButton} 
-          onPress={() => router.push({ pathname: "../attachImage", params: { colleagueID } })}>
-          <Text style={styles.editButtonText}>Attach Image</Text>
-        </TouchableOpacity>
+        {/* Category and Image button */}
+        <View style={styles.row}>
+          <View style={{ flex: 0.7, zIndex: 3000 }}>
+            <DropDownPicker
+              open={categoryOpen}
+              value={selectedCategory}
+              items={categoryOptions}
+              setOpen={setCategoryOpen}
+              setValue={setSelectedCategory}
+              placeholder="Category"
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+              textStyle={{ fontSize: 16 }}
+            />
+          </View>
 
-        <DropDownPicker
-          open={urgencyOpen}
-          value={selectedUrgency}
-          items={urgencyOptions}
-          setOpen={setUrgencyOpen}
-          setValue={setSelectedUrgency}
-          placeholder="Select Urgency"
-          style={styles.dropdown}
-          containerStyle={styles.dropdownContainer}
-          textStyle={{ fontSize: 16 }}
-        />
+          <TouchableOpacity
+            style={styles.attachButton}
+            onPress={() => router.push({ pathname: "../attachImage", params: { colleagueID } })}
+          >
+            <Text style={styles.attachText}>📸</Text>
+          </TouchableOpacity>
+        </View>
 
-        <DropDownPicker
-          open={categoryOpen}
-          value={selectedCategory}
-          items={categoryOptions}
-          setOpen={setCategoryOpen}
-          setValue={setSelectedCategory}
-          placeholder="Select Category"
-          style={styles.dropdown}
-          containerStyle={styles.dropdownContainer}
-          textStyle={{ fontSize: 16 }}
-        />
+        {/* Urgency dropdown */}
+        <View style={{ zIndex: 2000, width: "90%" }}>
+          <DropDownPicker
+            open={urgencyOpen}
+            value={selectedUrgency}
+            items={urgencyOptions}
+            setOpen={setUrgencyOpen}
+            setValue={setSelectedUrgency}
+            placeholder="Urgency"
+            style={styles.dropdown}
+            dropDownContainerStyle={styles.dropdownContainer}
+            textStyle={{ fontSize: 16 }}
+          />
+        </View>
 
-        <TouchableOpacity style={styles.editButton} onPress={submitIssue}>
-          <Text style={styles.editButtonText}>Submit Issue</Text>
+        {/* Submit button */}
+        <TouchableOpacity style={styles.submitButton} onPress={submitIssue}>
+          <Text style={styles.submitText}>Submit Issue</Text>
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
@@ -126,18 +152,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 10,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#AAC4EA'
+    alignItems: "center",
+    backgroundColor: "#AAC4EA",
   },
   textBox: {
-    backgroundColor: "white",
-    width: "90%", 
-    height: "30%",
-    marginHorizontal: 20,  
-    marginVertical: 10,  
-    borderRadius: 10,  
-    textAlign: "left",  
+    backgroundColor: "#fff",
+    width: "90%",
+    height: 150,
+    padding: 15,
+    borderRadius: 20,
+    fontSize: 16,
+    textAlignVertical: "top",
+    marginBottom: 10,
+  },
+  imagePlaceholder: {
+    width: 200,
+    height: 200,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
   },
   previewImage: {
     width: 200,
@@ -145,9 +180,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-  dropdownContainer: {
-    marginBottom: 15,
-    zIndex: 1000,
+  row: {
+    flexDirection: "row",
+    width: "90%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   dropdown: {
     backgroundColor: "#fff",
@@ -155,12 +193,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
   },
-  editButton: { 
-    backgroundColor: "#E0E0E0", 
-    padding: 10, 
-    borderRadius: 5, 
-    alignSelf: "flex-start", 
-    marginBottom: 10 
+  dropdownContainer: {
+    borderColor: "#ccc",
+    borderWidth: 1,
   },
-  editButtonText: { fontSize: 16, fontWeight: "bold" },
+  attachButton: {
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 0.25,
+    marginLeft: 10,
+    height: 50,
+  },
+  attachText: {
+    fontSize: 22,
+  },
+  submitButton: {
+    backgroundColor: "#368bd6",
+    width: "90%",
+    padding: 15,
+    borderRadius: 25,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  submitText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });

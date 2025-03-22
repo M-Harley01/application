@@ -66,29 +66,28 @@ export default function Camera() {
   
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleRetakePhoto}>
-          <Text style={styles.text}> Retake Picture </Text>
+          <Text style={styles.text}>Retake Picture</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={sendPhotoToReportScreen}>
-          <Text style={styles.text}> Use Picture </Text>
+          <Text style={styles.text}>Use Picture</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   ) : (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-      </CameraView>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-            <Text style={styles.text}>Take Photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={cancelPhoto}>
-            <Text style={styles.text}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef} />
+  
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
+          <Text style={styles.text}>take photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={cancelPhoto}>
+          <Text style={styles.text}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -96,14 +95,12 @@ export default function Camera() {
 const styles = StyleSheet.create({
   
   container: {
-    justifyContent: 'center',
-    backgroundColor: '#AAC4EA',
-    height: '100%' 
+    flex: 1,
+    backgroundColor: '#000', 
   },
   camera: {
-    flex: 3,
-    height: '80%',
-    width: '90%',
+    flex: 1,
+    width: '100%',
   },
   box: {
     flex: 0.7,
@@ -120,12 +117,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain', 
   },
   buttonContainer: {
-    flex: 0.3, 
-    flexDirection: 'row', 
+    position: 'absolute',
+    bottom: 40,
+    width: '100%',
+    flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    width: '100%',
-    marginBottom: '15%',
   },
   button: {
     backgroundColor: 'gray',
