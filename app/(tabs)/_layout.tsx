@@ -9,21 +9,21 @@ export default function TabLayout() {
   const { colleagueID } = useLocalSearchParams();
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#005DA0" }}>  
+    <View style={{ flex: 1, backgroundColor: "#000000" }}>  
 
-      <StatusBar barStyle="light-content" backgroundColor="#005DA0" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
       <Tabs
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: "#005DA0", 
+            backgroundColor: "#000000", 
           },
           tabBarActiveTintColor: "white",
-          tabBarInactiveTintColor: "#AAC4EA", 
+          tabBarInactiveTintColor: "#AAAAAA", 
 
-          headerStyle: {backgroundColor: "#005DA0"},
+          headerStyle: { backgroundColor: "#000000" },
           headerTintColor: "white",
-          headerTitleStyle: {fontWeight: "bold"}
+          headerTitleStyle: { fontWeight: "bold" }
         }}
       >
         <Tabs.Screen name="index" initialParams={{ colleagueID }} />
