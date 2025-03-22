@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import { Button } from "react-native";
 
 interface Colleague {
   firstName: string;
@@ -41,6 +42,7 @@ export default function ScheduleScreen() {
   useEffect(() => {
     fetchColleagues();
 },[]);
+
 
   const fetchSchedule = async () => {
     try {
@@ -197,7 +199,11 @@ export default function ScheduleScreen() {
           <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
         )}
       </ScrollView>
+
+      <Button title="Refresh Schedule" onPress={fetchSchedule} />
     </View>
+
+    
   );
 }
 
