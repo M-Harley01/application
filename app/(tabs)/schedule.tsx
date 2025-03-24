@@ -1,10 +1,9 @@
-//schedule.tsx
-
 import { useRouter, useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Button } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface Colleague {
   firstName: string;
@@ -33,16 +32,17 @@ export default function ScheduleScreen() {
 
   const [colleagues, setColleagues] = useState<{ label: string; value: string }[]>([]);
 
-  useEffect(() => {
-    if (colleagueID && selectedMonth) {
-      fetchSchedule();
-    }
-  }, [colleagueID, selectedMonth]);
+  useFocusEffect(
+    useCallback(() => {
+      if (colleagueID && selectedMonth) {
+        fetchSchedule();
+      }
+    }, [colleagueID, selectedMonth])
+  );
 
   useEffect(() => {
     fetchColleagues();
-},[]);
-
+  }, []);
 
   const fetchSchedule = async () => {
     try {
@@ -69,32 +69,32 @@ export default function ScheduleScreen() {
   };
 
   const fetchColleagues = async () => {
-    try{
+    try {
       const response = await fetch("http://192.168.1.109:3000/api/colleagues");
       const data = await response.json();
 
-      if(data.success){
+      if (data.success) {
         const allColleagues = data.colleagues;
 
         const filtered = allColleagues.filter((c: Colleague) => c.colleagueID !== colleagueID);
 
-        const formatted = filtered.map((c: Colleague)=> ({
+        const formatted = filtered.map((c: Colleague) => ({
           label: `${c.firstName} ${c.lastName}`,
           value: c.colleagueID
         }));
         setColleagues(formatted);
       }
-    }catch(error){
+    } catch (error) {
       console.error("Error fetching colleagues")
     }
   };
 
   const handleColleagueSelect = (value: string | null) => {
-    if(value){
+    if (value) {
       router.push({
         pathname: "../colleagueSchedule",
-        params: { 
-          colleagueID: value, 
+        params: {
+          colleagueID: value,
           month: selectedMonth
         }
       });
@@ -102,7 +102,7 @@ export default function ScheduleScreen() {
   }
 
   const handleShiftChange = (value: string | null) => {
-    if(value){
+    if (value) {
       router.push({
         pathname: "../shiftSwap",
         params: {
@@ -203,7 +203,7 @@ export default function ScheduleScreen() {
       <Button title="Refresh Schedule" onPress={fetchSchedule} />
     </View>
 
-    
+
   );
 }
 
