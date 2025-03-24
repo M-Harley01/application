@@ -44,6 +44,14 @@ export default function ScheduleScreen() {
     fetchColleagues();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedMonth("");  
+      setSelectedFilter(null);
+      setSelectedSwap(null);
+    }, [])
+  );
+
   const fetchSchedule = async () => {
     try {
       const response = await fetch(
@@ -131,90 +139,104 @@ export default function ScheduleScreen() {
 
   return (
     <View style={styles.container}>
-
-      {/* DropDowns in a Row */}
-      <View style={styles.dropdownRow}>
-        <View style={[styles.dropdownWrapper, { zIndex: monthOpen ? 3000 : 1 }]}>
-          <DropDownPicker
-            open={monthOpen}
-            value={selectedMonth}
-            items={months}
-            setOpen={setMonthOpen}
-            setValue={setSelectedMonth}
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            dropDownContainerStyle={styles.dropdownAbsolute}
-            textStyle={{ fontSize: 14 }}
-          />
+  
+      {/* Gray Top Section */}
+      <View style={styles.grayTopSection}>
+        {/* DropDowns in a Row */}
+        <View style={styles.dropdownRow}>
+          <View style={[styles.dropdownWrapper, { zIndex: monthOpen ? 3000 : 1 }]}>
+            <DropDownPicker
+              open={monthOpen}
+              value={selectedMonth}
+              items={months}
+              setOpen={setMonthOpen}
+              setValue={setSelectedMonth}
+              style={styles.dropdown}
+              containerStyle={styles.dropdownContainer}
+              dropDownContainerStyle={styles.dropdownAbsolute}
+              textStyle={{ fontSize: 14 }}
+            />
+          </View>
+  
+          <View style={[styles.dropdownWrapper, { zIndex: filterOpen ? 2500 : 1 }]}>
+            <DropDownPicker
+              open={filterOpen}
+              value={selectedFilter}
+              items={colleagues}
+              setOpen={setFilterOpen}
+              setValue={setSelectedFilter}
+              placeholder="View Colleague shifts"
+              style={styles.dropdown}
+              containerStyle={styles.dropdownContainer}
+              dropDownContainerStyle={styles.dropdownAbsolute}
+              textStyle={{ fontSize: 14 }}
+              onChangeValue={handleColleagueSelect}
+            />
+          </View>
+  
+          <View style={[styles.dropdownWrapper, { zIndex: swapOpen ? 2000 : 1 }]}>
+            <DropDownPicker
+              open={swapOpen}
+              value={selectedSwap}
+              items={colleagues}
+              setOpen={setSwapOpen}
+              setValue={setSelectedSwap}
+              placeholder="Request Swap"
+              style={styles.dropdown}
+              containerStyle={styles.dropdownContainer}
+              dropDownContainerStyle={styles.dropdownAbsolute}
+              textStyle={{ fontSize: 14 }}
+              onChangeValue={handleShiftChange}
+            />
+          </View>
         </View>
-
-        <View style={[styles.dropdownWrapper, { zIndex: filterOpen ? 2500 : 1 }]}>
-          <DropDownPicker
-            open={filterOpen}
-            value={selectedFilter}
-            items={colleagues}
-            setOpen={setFilterOpen}
-            setValue={setSelectedFilter}
-            placeholder="View Colleague shifts"
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            dropDownContainerStyle={styles.dropdownAbsolute}
-            textStyle={{ fontSize: 14 }}
-            onChangeValue={handleColleagueSelect}
-          />
-        </View>
-
-        <View style={[styles.dropdownWrapper, { zIndex: swapOpen ? 2000 : 1 }]}>
-          <DropDownPicker
-            open={swapOpen}
-            value={selectedSwap}
-            items={colleagues}
-            setOpen={setSwapOpen}
-            setValue={setSelectedSwap}
-            placeholder="Request Swap"
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            dropDownContainerStyle={styles.dropdownAbsolute}
-            textStyle={{ fontSize: 14 }}
-            onChangeValue={handleShiftChange}
-          />
-        </View>
+  
+      
+        
       </View>
-
+  
       {/* Schedule Table */}
-      <ScrollView style={styles.scheduleContainer}>
-        {dates.length > 0 ? (
-          dates.map((date, index) => (
-            <View key={index} style={styles.shiftRow}>
-              <View style={styles.dayColumn}>
-                <Text style={styles.dayText}>{date}</Text>
-              </View>
-              <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
-                <Text style={styles.shiftTime}>{times[index]}</Text>
-                {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
-              </View>
-            </View>
-          ))
-        ) : (
-          <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
-        )}
-      </ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+  <View style={styles.scheduleContainer}>
+    {dates.length > 0 ? (
+      dates.map((date, index) => (
+        <View key={index} style={styles.shiftRow}>
+          <View style={styles.dayColumn}>
+            <Text style={styles.dayText}>{date}</Text>
+          </View>
+          <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
+            <Text style={styles.shiftTime}>{times[index]}</Text>
+            {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
+          </View>
+        </View>
+      ))
+    ) : (
+      <Text style={{ textAlign: "center", marginTop: 20 }}>No shifts available for {selectedMonth}</Text>
+    )}
+  </View>
+</ScrollView>
 
-      <Button title="Refresh Schedule" onPress={fetchSchedule} />
+<View style={styles.refreshWrapper}>
+  <Button title="Refresh Schedule" color="#ffffff" onPress={fetchSchedule} />
+</View>
+
     </View>
-
-
   );
+  
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f0f0" },
+  container: {
+    flex: 1,
+    backgroundColor: "#AAC4EA", 
+  },
 
   dropdownRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 10,
     marginBottom: 10,
+    paddingTop: 10,
   },
   dropdownWrapper: {
     flex: 1,
@@ -243,11 +265,60 @@ const styles = StyleSheet.create({
     marginTop: 10,
     zIndex: 1,
   },
-  shiftRow: { flexDirection: "row", marginBottom: 8, alignItems: "center" },
-  dayColumn: { width: 80, backgroundColor: "#9e9e9e", padding: 10, borderRadius: 5, alignItems: "center" },
-  dayText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  shiftBox: { flex: 1, backgroundColor: "#6fa3e5", padding: 12, borderRadius: 25, marginLeft: 8 },
-  shiftTime: { color: "#ffffff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
-  shiftType: { color: "#ffffff", fontSize: 14, textAlign: "center" },
-  notScheduled: { backgroundColor: "#AAC4EA" },
+  shiftRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+    alignItems: "center",
+  },
+  dayColumn: {
+    width: 80,
+    backgroundColor: "#d7dbd8",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  dayText: {
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  shiftBox: {
+    flex: 1,
+    backgroundColor: "rgba(0, 93, 160, 0.56)",
+    padding: 12,
+    borderRadius: 25,
+    marginLeft: 8,
+  },
+  shiftTime: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  shiftType: {
+    color: "#ffffff",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  notScheduled: {
+    backgroundColor: "#d7dbd8", 
+  },
+  grayTopSection: {
+    backgroundColor: "#005DA0",
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  scrollContent: {
+  flexGrow: 1,
+  backgroundColor: "#AAC4EA", // light blue behind the scroll area
+  paddingBottom: 30, // space under the button
+},
+refreshWrapper:{
+  backgroundColor: "#005DA0",
+  padding: 10,
+  marginTop: 5,
+  borderRadius: 8,
+  width: "100%"
+}
 });

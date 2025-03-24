@@ -42,23 +42,27 @@ export default function ColleagueScheduleScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Schedule for Colleague ID: {colleagueID}</Text>
+      <Text style={styles.heading}>Schedule for #{colleagueID}</Text>
       <Text style={styles.subHeading}>Month: {month}</Text>
 
-      <ScrollView style={styles.scheduleContainer}>
-        {dates.length > 0 ? (
-          dates.map((date, index) => (
-            <View key={index} style={styles.shiftRow}>
-              <Text style={styles.dayText}>{date}</Text>
-              <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
-                <Text style={styles.shiftTime}>{times[index]}</Text>
-                {types[index] && <Text style={styles.shiftType}>{types[index]}</Text>}
+      <ScrollView style={styles.scheduleScroll}>
+        <View style={styles.scheduleContainer}>
+          {dates.length > 0 ? (
+            dates.map((date, index) => (
+              <View key={index} style={styles.shiftRow}>
+                <View style={styles.dayColumn}>
+                  <Text style={styles.dayText}>{date}</Text>
+                </View>
+                <View style={[styles.shiftBox, times[index] === "Not Scheduled" && styles.notScheduled]}>
+                  <Text style={styles.shiftTime}>{times[index]}</Text>
+                  {types[index] ? <Text style={styles.shiftType}>{types[index]}</Text> : null}
+                </View>
               </View>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.noShifts}>No shifts available</Text>
-        )}
+            ))
+          ) : (
+            <Text style={styles.noShifts}>No shifts available</Text>
+          )}
+        </View>
       </ScrollView>
 
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -69,17 +73,89 @@ export default function ColleagueScheduleScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f0f0", padding: 20 },
-  heading: { fontSize: 24, fontWeight: "bold", textAlign: "center", marginBottom: 10 },
-  subHeading: { fontSize: 18, textAlign: "center", marginBottom: 20 },
-  scheduleContainer: { marginTop: 10 },
-  shiftRow: { flexDirection: "row", marginBottom: 8, alignItems: "center" },
-  dayText: { width: 80, fontSize: 16, fontWeight: "bold" },
-  shiftBox: { flex: 1, backgroundColor: "#6fa3e5", padding: 12, borderRadius: 10 },
-  shiftTime: { color: "#ffffff", fontSize: 16, fontWeight: "bold", textAlign: "center" },
-  shiftType: { color: "#ffffff", fontSize: 14, textAlign: "center" },
-  notScheduled: { backgroundColor: "#AAC4EA" },
-  noShifts: { textAlign: "center", fontSize: 16, marginTop: 20 },
-  backButton: { backgroundColor: "#005DA0", padding: 10, borderRadius: 5, marginTop: 20, alignSelf: "center" },
-  backText: { color: "white", fontWeight: "bold", textAlign: "center" },
+  container: {
+    flex: 1,
+    backgroundColor: "#AAC4EA",
+    paddingTop: 30,
+    paddingHorizontal: 10,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 5,
+    color: "#000",
+  },
+  subHeading: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#444",
+    marginBottom: 15,
+  },
+  scheduleScroll: {
+    flex: 1,
+  },
+  scheduleContainer: {
+    paddingBottom: 20,
+  },
+  shiftRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    paddingHorizontal: 5,
+  },
+  dayColumn: {
+    width: 60,
+    backgroundColor: "#d7dbd8",
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dayText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  shiftBox: {
+    flex: 1,
+    marginLeft: 10,
+    backgroundColor: "#6fa3e5",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notScheduled: {
+    backgroundColor: "#d7dbd8",
+  },
+  shiftTime: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  shiftType: {
+    fontSize: 14,
+    color: "#fff",
+  },
+  noShifts: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
+    color: "#444",
+  },
+  backButton: {
+    marginTop: 20,
+    alignSelf: "center",
+    backgroundColor: "#005DA0",
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  backText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });

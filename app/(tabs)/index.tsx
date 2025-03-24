@@ -116,6 +116,13 @@ export default function ProfileScreen() {
       if(data.success){
         console.log("Requests submitted successfully")
         setholidays(data.remainingHolidays);
+
+        Alert.alert("Holiday requests successfully submitted");
+
+        setStartValue(null);
+        setStartDateValue(null);
+        setEndValue(null);
+        setEndDateValue(null);
       }else{
         console.error("submission failed");
       }
@@ -182,14 +189,14 @@ export default function ProfileScreen() {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" nestedScrollEnabled={true}>
 
-        <View style={styles.section}>
-          <Text style={styles.text}>FirstName: {firstName}</Text>
-          <Text style={styles.text}>FirstName: {lastName}</Text>
-          <Text style={styles.text}>Colleague ID: #{colleagueID}</Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Edit profile</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.section}>
+  <View style={styles.nameRow}>
+    <Text style={styles.nameText}>{firstName} {lastName}</Text>
+  </View>
+  <Text style={styles.idText}>Colleague ID: #{colleagueID}</Text>
+
+</View>
+
         <View style={styles.infoBox}>
           <Text style={styles.text}>Contact no.: {contactNo}</Text>
         </View>
@@ -203,15 +210,7 @@ export default function ProfileScreen() {
           <Text style={styles.text}>Holidays: {holidays} days</Text>
         </View>
 
-        {checkedIn ? (
-          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckOut}>
-          <Text style={styles.checkoutText}>Check Out</Text>
-        </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.editButton} onPress={locationTime}>
-            <Text style={styles.editButtonText}>Clock In</Text>
-          </TouchableOpacity>
-        )}
+        
 
         <View style={styles.section}>
           <Text style={styles.subHeadingText}>Holiday Requests</Text>
@@ -240,7 +239,19 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {checkedIn ? (
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckOut}>
+          <Text style={styles.checkoutText}>Check Out</Text>
+        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.editButton} onPress={locationTime}>
+            <Text style={styles.editButtonText}>Clock In</Text>
+          </TouchableOpacity>
+        )}
+
       </ScrollView>
+
+      
     </KeyboardAvoidingView>
   );
 }
@@ -269,5 +280,23 @@ const styles = StyleSheet.create({
   },
   checkoutButton: { backgroundColor: "#dc3545", padding: 10, borderRadius: 5, alignSelf: "center", marginTop: 10 },
   checkoutText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
+  nameRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  
+  nameText: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "#ffffff",
+  },
+  
+  idText: {
+    fontSize: 25,
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 10,
+  },
   
 });
