@@ -78,9 +78,13 @@ export default function LoginScreen() {
 
       <TextInput
         style={styles.textBox}
-        placeholder="Enter second text"
+        placeholder="Enter password"
         value={password}
         onChangeText={setInput2}
+        secureTextEntry={true}
+        textContentType="password"
+        autoCapitalize="none"
+        autoCorrect={false}
       />
 
       <TouchableOpacity style={styles.Button} onPress={sendDataToServer}>

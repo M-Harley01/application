@@ -30,12 +30,19 @@ export default function ProfileScreen() {
   const [holidays, setholidays] = useState<number>(0);
 
   useEffect(() => {
-    if (colleagueID) {
+    if (colleagueID && typeof colleagueID !== "string" || colleagueID.trim() !== "") {
       fetchUserDetails();
+    } else {
+      console.log("[ProfileScreen] Skipping fetch, no valid colleagueID.");
     }
   }, [colleagueID, refresh]);
 
   const fetchUserDetails = async () => {
+    if (!colleagueID || typeof colleagueID !== "string" || colleagueID.trim() === "") {
+      console.warn("[fetchUserDetails] Invalid colleagueID:", colleagueID);
+      return;
+    }
+
     try{
       const response = await fetch(
         `http://192.168.1.109:3000/api/profile?colleagueID=${colleagueID}`
@@ -56,7 +63,7 @@ export default function ProfileScreen() {
         setholidays(data.holidays);
       }
       else{
-        console.error("failed getting details: ", data.message);
+        console.log("failed getting details: ");
       }
     }catch(error){
         console.error("Error fetching user details: ", error);
