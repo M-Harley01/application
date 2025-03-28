@@ -1,3 +1,14 @@
+User details for the log in:
+
+userID: 123456
+password: password
+
+userID: 124567
+password: bobPassword
+
+userID: 125678
+password: alicePassword
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
